@@ -185,17 +185,17 @@ namespace Doji.AI {
             return (a, b);
         }
 
-        internal static T Slice<T>(this Ops ops, T tensor, Index i) where T : Tensor {
+        public static T Slice<T>(this Ops ops, T tensor, Index i) where T : Tensor {
             return ops.Slice(tensor, i.ToRange());
         }
-        internal static T Slice<T>(this Ops ops, T tensor, Index i, Range r) where T : Tensor {
+        public static T Slice<T>(this Ops ops, T tensor, Index i, Range r) where T : Tensor {
             return ops.Slice(tensor, i.ToRange(), r);
         }
-        internal static T Slice<T>(this Ops ops, T tensor, Range r0, Index i, Range r2) where T : Tensor {
+        public static T Slice<T>(this Ops ops, T tensor, Range r0, Index i, Range r2) where T : Tensor {
             T O = ops.Slice(tensor, r0, i.ToRange(), r2);
             return O;
         }
-        internal static Range ToRange(this Index i) {
+        public static Range ToRange(this Index i) {
             return i.IsFromEnd ? i..new Index(i.Value - 1, true) : (i..new Index(i.Value + 1, false));
         }
 

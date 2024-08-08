@@ -340,7 +340,7 @@ namespace Doji.AI {
             return O;
         }
 
-        public T Slice<T>(T X, ReadOnlySpan<int> starts, ReadOnlySpan<int> ends, ReadOnlySpan<int> axes, ReadOnlySpan<int> steps) where T : Tensor {
+        internal T Slice<T>(T X, ReadOnlySpan<int> starts, ReadOnlySpan<int> ends, ReadOnlySpan<int> axes, ReadOnlySpan<int> steps) where T : Tensor {
             var O = AllocNoData(X.shape.Slice(starts, ends, axes, steps), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
