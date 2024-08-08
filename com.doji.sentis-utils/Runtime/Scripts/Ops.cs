@@ -104,6 +104,46 @@ namespace Doji.AI {
             return O;
         }
 
+        public TensorFloat ReduceMax(TensorFloat X, ReadOnlySpan<int> axes) {
+            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceMax(X, O, axes);
+            return O;
+        }
+
+        public TensorInt ReduceMax(TensorInt X, ReadOnlySpan<int> axes) {
+            var O = TensorIntAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceMax(X, O, axes);
+            return O;
+        }
+
+        public TensorFloat ReduceMean(TensorFloat X, ReadOnlySpan<int> axes) {
+            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceMean(X, O, axes);
+            return O;
+        }
+
+        public TensorFloat ReduceMin(TensorFloat X, ReadOnlySpan<int> axes) {
+            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceMin(X, O, axes);
+            return O;
+        }
+
+        public TensorInt ReduceMin(TensorInt X, ReadOnlySpan<int> axes) {
+            var O =TensorIntAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceMin(X, O, axes);
+            return O;
+        }
+
         public TensorFloat Mul(TensorFloat A, TensorFloat B) {
             var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
