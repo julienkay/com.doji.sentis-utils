@@ -297,6 +297,14 @@ namespace Doji.AI {
             return O;
         }
 
+        public T Expand<T>(T X, TensorShape shape) where T : Tensor {
+            var O = AllocNoData(X.shape.Broadcast(shape), X.dataType) as T;
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Expand(X, O);
+            return O;
+        }
+
         public T Transpose<T>(T X) where T : Tensor {
             var O = AllocNoData(X.shape.Transpose(), X.dataType) as T;
             if (O.shape.HasZeroDims())
