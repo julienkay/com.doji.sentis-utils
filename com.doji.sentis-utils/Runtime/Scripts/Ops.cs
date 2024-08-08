@@ -199,6 +199,21 @@ namespace Doji.AI {
             _backend.Add(A, B, O);
             return O;
         }
+        public TensorInt Add(TensorInt A, int b) {
+            var O = TensorIntAllocNoData(A.shape);
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ScalarMad(A, O, 1, b);
+            return O;
+        }
+
+        public TensorInt Add(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Add(A, B, O);
+            return O;
+        }
 
         public TensorFloat Div(TensorFloat A, float b) {
             var O = TensorFloatAllocNoData(A.shape);
