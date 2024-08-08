@@ -204,7 +204,7 @@ namespace Doji.AI {
             int rank = shape.rank;
             int numDimensionsToSlice = ranges.Length;
 
-            Assert.IsTrue(rank >= 2, $"Too many indices for tensor of dimension {rank}.");
+            Assert.IsTrue(rank >= numDimensionsToSlice, $"Too many indices for tensor of dimension {rank}.");
 
             unsafe {
                 Span<int> starts = stackalloc int[rank];
