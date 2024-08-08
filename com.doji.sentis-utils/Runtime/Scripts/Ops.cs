@@ -483,6 +483,38 @@ namespace Doji.AI {
             return O;
         }
 
+        public TensorInt Or(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Or(A, B, O);
+            return O;
+        }
+
+        public TensorInt And(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.And(A, B, O);
+            return O;
+        }
+
+        public TensorInt Xor(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Xor(A, B, O);
+            return O;
+        }
+
+        public TensorInt Not(TensorInt X) {
+            var O = TensorIntAllocNoData(X.shape);
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Not(X, O);
+            return O;
+        }
+
         public TensorInt Cast(TensorFloat X) {
             var O = TensorIntAllocNoData(X.shape);
             if (O.shape.HasZeroDims())
