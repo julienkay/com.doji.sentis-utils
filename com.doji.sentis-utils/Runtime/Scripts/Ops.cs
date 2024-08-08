@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Sentis;
 
-namespace Doji.AI.Utils {
+namespace Doji.AI {
 
     public class Ops : IDisposable {
 

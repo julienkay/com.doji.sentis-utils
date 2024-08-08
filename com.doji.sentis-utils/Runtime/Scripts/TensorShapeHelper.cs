@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.Sentis;
 
-namespace Doji.AI.Utils {
+namespace Doji.AI {
 
     internal static class TensorShapeHelper {
 

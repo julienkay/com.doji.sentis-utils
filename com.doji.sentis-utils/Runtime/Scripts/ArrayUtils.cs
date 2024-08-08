@@ -1,6 +1,6 @@
 using System;
 
-namespace Doji.AI.Utils {
+namespace Doji.AI {
 
     internal static class ArrayUtils {
 

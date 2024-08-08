@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using Unity.Sentis;
 
-namespace Doji.AI.Utils {
+namespace Doji.AI {
 
     internal static class ShapeInference {
 

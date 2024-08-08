@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Sentis;
 using UnityEngine.Assertions;
 
-namespace Doji.AI.Utils {
+namespace Doji.AI {
 
     /// <summary>
     /// Extends Ops class with not-yet implemented operators
