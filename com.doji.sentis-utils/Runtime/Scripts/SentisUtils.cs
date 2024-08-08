@@ -191,14 +191,47 @@ namespace Doji.AI {
         public static T Slice<T>(this Ops ops, T tensor, Index i, Range r) where T : Tensor {
             return ops.Slice(tensor, i.ToRange(), r);
         }
+        public static T Slice<T>(this Ops ops, T tensor, Range r, Index i) where T : Tensor {
+            return ops.Slice(tensor, r, i.ToRange());
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Index i, Range r1, Range r2) where T : Tensor {
+            T O = ops.Slice(tensor, i.ToRange(), r1, r2);
+            return O;
+        }
         public static T Slice<T>(this Ops ops, T tensor, Range r0, Index i, Range r2) where T : Tensor {
             T O = ops.Slice(tensor, r0, i.ToRange(), r2);
+            return O;
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Range r0, Range r1, Index i) where T : Tensor {
+            T O = ops.Slice(tensor, r0, r1, i.ToRange());
+            return O;
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Index i0, Index i1, Range r) where T : Tensor {
+            T O = ops.Slice(tensor, i0.ToRange(), i1.ToRange(), r);
+            return O;
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Range r, Index i0, Index i1) where T : Tensor {
+            T O = ops.Slice(tensor, r, i0.ToRange(), i1.ToRange());
+            return O;
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Index i0, Range r, Index i2) where T : Tensor {
+            T O = ops.Slice(tensor, i0.ToRange(), r, i2.ToRange());
+            return O;
+        }
+        public static T Slice<T>(this Ops ops, T tensor, Index i0, Index i1, Index i2) where T : Tensor {
+            T O = ops.Slice(tensor, i0.ToRange(), i1.ToRange(), i2.ToRange());
             return O;
         }
         public static Range ToRange(this Index i) {
             return i.IsFromEnd ? i..new Index(i.Value - 1, true) : (i..new Index(i.Value + 1, false));
         }
 
+        /// <summary>
+        /// A Slice() method that uses C# indices and ranges rather than (start, end axes, steps) parameters.
+        /// For example:
+        /// Doing 'tensor[  :  , -1 ,  :  ]' in python directly translates to 
+        /// .Slice(tensor,  .. , ^1 ,  .. )
+        /// </summary>
         public static T Slice<T>(this Ops ops, T tensor, params Range[] ranges) where T : Tensor {
             var shape = tensor.shape;
             int rank = shape.rank;
