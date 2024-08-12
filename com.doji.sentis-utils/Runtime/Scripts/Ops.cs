@@ -329,6 +329,14 @@ namespace Doji.AI {
             return O;
         }
 
+        public T Where<T>(TensorInt C, T A, T B) where T : Tensor {
+            var O = AllocNoData(A.shape.Broadcast(B.shape.Broadcast(C.shape)), A.dataType) as T;
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Where(C, A, B, O);
+            return O;
+        }
+
         public T Reshape<T>(T X, TensorShape shape) where T : Tensor {
             var O = AllocNoData(shape, X.dataType) as T;
             if (O.shape.HasZeroDims())

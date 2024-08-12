@@ -258,5 +258,21 @@ namespace Doji.AI {
                 return outputTensor as T;
             }
         }
+
+        /// <summary>
+        /// Fills elements of <paramref name="tensor"/> with <paramref name="value"/> where <paramref name="mask"/> is 1
+        /// </summary>
+        public static TensorFloat MaskedFill(this Ops ops, TensorFloat tensor, TensorInt mask, float value) {
+            using TensorFloat A = new TensorFloat(value);
+            return ops.Where(mask, A, tensor);
+        }
+
+        /// <summary>
+        /// Fills elements of <paramref name="tensor"/> with <paramref name="value"/> where <paramref name="mask"/> is 1
+        /// </summary>
+        public static TensorInt MaskedFill(this Ops ops, TensorInt tensor, TensorInt mask, int value) {
+            using TensorInt A = new TensorInt(value);
+            return ops.Where(mask, A, tensor);
+        }
     }
 }
