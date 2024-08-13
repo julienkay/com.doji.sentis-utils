@@ -144,6 +144,22 @@ namespace Doji.AI {
             return O;
         }
 
+        public TensorFloat ReduceSum(TensorFloat X, ReadOnlySpan<int> axes) {
+            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceSum(X, O, axes);
+            return O;
+        }
+
+        public TensorInt ReduceSum(TensorInt X, ReadOnlySpan<int> axes) {
+            var O = TensorIntAllocNoData(X.shape.Reduce(axes));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.ReduceSum(X, O, axes);
+            return O;
+        }
+
         public TensorFloat Mul(TensorFloat A, TensorFloat B) {
             var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
@@ -419,22 +435,6 @@ namespace Doji.AI {
             return O;
         }
 
-        public TensorInt GreaterOrEqual(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
-            if (O.shape.HasZeroDims())
-                return O;
-            _backend.GreaterOrEqual(A, B, O);
-            return O;
-        }
-
-        public TensorInt GreaterOrEqual(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
-            if (O.shape.HasZeroDims())
-                return O;
-            _backend.GreaterOrEqual(A, B, O);
-            return O;
-        }
-
         public TensorFloat Softmax(TensorFloat X, int axis = -1) {
             var O = TensorFloatAllocNoData(X.shape);
             if (O.shape.HasZeroDims())
@@ -528,6 +528,86 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ArgMin(X, O, axis, selectLastIndex);
+            return O;
+        }
+
+        public TensorInt Greater(TensorFloat A, TensorFloat B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Greater(A, B, O);
+            return O;
+        }
+
+        public TensorInt Greater(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Greater(A, B, O);
+            return O;
+        }
+
+        public TensorInt GreaterOrEqual(TensorFloat A, TensorFloat B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.GreaterOrEqual(A, B, O);
+            return O;
+        }
+
+        public TensorInt GreaterOrEqual(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.GreaterOrEqual(A, B, O);
+            return O;
+        }
+
+        public TensorInt Less(TensorFloat A, TensorFloat B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Less(A, B, O);
+            return O;
+        }
+
+        public TensorInt Less(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Less(A, B, O);
+            return O;
+        }
+
+        public TensorInt LessOrEqual(TensorFloat A, TensorFloat B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.LessOrEqual(A, B, O);
+            return O;
+        }
+
+        public TensorInt LessOrEqual(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.LessOrEqual(A, B, O);
+            return O;
+        }
+
+        public TensorInt Equal(TensorFloat A, TensorFloat B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Equal(A, B, O);
+            return O;
+        }
+
+        public TensorInt Equal(TensorInt A, TensorInt B) {
+            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Equal(A, B, O);
             return O;
         }
 

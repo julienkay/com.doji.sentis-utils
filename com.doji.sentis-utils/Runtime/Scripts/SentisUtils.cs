@@ -237,7 +237,7 @@ namespace Doji.AI {
             int rank = shape.rank;
             int numDimensionsToSlice = ranges.Length;
 
-            Assert.IsTrue(rank >= numDimensionsToSlice, $"Too many indices for tensor of dimension {rank}.");
+            Assert.IsTrue(rank >= numDimensionsToSlice, $"Too many indices ({numDimensionsToSlice}) for tensor of rank {rank}.");
 
             unsafe {
                 Span<int> starts = stackalloc int[rank];
@@ -274,5 +274,15 @@ namespace Doji.AI {
             using TensorInt A = new TensorInt(value);
             return ops.Where(mask, A, tensor);
         }
+
+        //TODO: needs test, https://discuss.pytorch.org/t/alternatives-to-torch-isin/190297/3
+        /*public static TensorInt IsIn(this Ops ops, TensorInt tensor1, TensorInt tensor2) {
+            tensor1.Reshape(tensor1.shape.Unsqueeze(1));
+            var eq = ops.Equal(tensor1, tensor2);
+            var sum = ops.ReduceSum(eq, new int[] { 0, 1 });
+            e.unsqueeze(1) == t).sum();
+            tensor1.Reshape(tensor1.shape.Squeeze(1));
+            return sum;
+        }*/
     }
 }
