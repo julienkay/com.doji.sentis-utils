@@ -1,0 +1,21 @@
+{
+    "name": "Doji.SentisUtils.Editor.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c98377141161c7746a178fb5cb1af075",
+        "GUID:cf0ac4207a68fac439ea28cb5bfbf97e"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

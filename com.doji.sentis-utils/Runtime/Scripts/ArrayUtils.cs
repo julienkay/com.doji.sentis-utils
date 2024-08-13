@@ -2,7 +2,7 @@ using System;
 
 namespace Doji.AI {
 
-    internal static class ArrayUtils {
+    public static class ArrayUtils {
 
         /// <summary>
         /// Return samples from the “standard normal” distribution.
