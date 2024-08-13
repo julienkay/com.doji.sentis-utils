@@ -188,40 +188,58 @@ namespace Doji.AI {
         }
 
         public static T Slice<T>(this Ops ops, T tensor, Index i) where T : Tensor {
-            return ops.Slice(tensor, i.ToRange());
+            T O = ops.Slice(tensor, i.ToRange());
+            O.Reshape(O.shape.Squeeze(0));
+            return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Index i, Range r) where T : Tensor {
-            return ops.Slice(tensor, i.ToRange(), r);
+            T O = ops.Slice(tensor, i.ToRange(), r);
+            O.Reshape(O.shape.Squeeze(0));
+            return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Range r, Index i) where T : Tensor {
-            return ops.Slice(tensor, r, i.ToRange());
+            T O = ops.Slice(tensor, r, i.ToRange());
+            O.Reshape(O.shape.Squeeze(1));
+            return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Index i, Range r1, Range r2) where T : Tensor {
             T O = ops.Slice(tensor, i.ToRange(), r1, r2);
+            O.Reshape(O.shape.Squeeze(0));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Range r0, Index i, Range r2) where T : Tensor {
             T O = ops.Slice(tensor, r0, i.ToRange(), r2);
+            O.Reshape(O.shape.Squeeze(1));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Range r0, Range r1, Index i) where T : Tensor {
             T O = ops.Slice(tensor, r0, r1, i.ToRange());
+            O.Reshape(O.shape.Squeeze(2));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Index i0, Index i1, Range r) where T : Tensor {
             T O = ops.Slice(tensor, i0.ToRange(), i1.ToRange(), r);
+            O.Reshape(O.shape.Squeeze(1));
+            O.Reshape(O.shape.Squeeze(0));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Range r, Index i0, Index i1) where T : Tensor {
             T O = ops.Slice(tensor, r, i0.ToRange(), i1.ToRange());
+            O.Reshape(O.shape.Squeeze(2));
+            O.Reshape(O.shape.Squeeze(1));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Index i0, Range r, Index i2) where T : Tensor {
             T O = ops.Slice(tensor, i0.ToRange(), r, i2.ToRange());
+            O.Reshape(O.shape.Squeeze(2));
+            O.Reshape(O.shape.Squeeze(0));
             return O;
         }
         public static T Slice<T>(this Ops ops, T tensor, Index i0, Index i1, Index i2) where T : Tensor {
             T O = ops.Slice(tensor, i0.ToRange(), i1.ToRange(), i2.ToRange());
+            O.Reshape(O.shape.Squeeze(2));
+            O.Reshape(O.shape.Squeeze(1));
+            O.Reshape(O.shape.Squeeze(0));
             return O;
         }
         public static Range ToRange(this Index i) {
