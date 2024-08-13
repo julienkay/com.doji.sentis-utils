@@ -11,8 +11,6 @@ namespace Doji.AI {
     /// </summary>
     public static class SentisUtils {
 
-        private static Tensor[] _tmpTensorRefs = new Tensor[2];
-
         /// <summary>
         /// Computes the q-th quantiles of each row of the input tensor along the dimension dim.
         /// torch.quantile
@@ -49,29 +47,33 @@ namespace Doji.AI {
         }
 
         /// <summary>
-        /// Alias for <see cref="Ops.Concat(Tensor[], int)"/> to match numpy.concatenate()
+        /// Alias for <see cref="Ops.Concat(Tensor[], int)"/> to match torch.cat()
         /// naming and for convenience of not needing to create a Tensor array.
         /// </summary>
-        public static Tensor Concatenate(this Ops ops, Tensor tensor1, Tensor tensor2, int axis = 0) {
-            _tmpTensorRefs[0] = tensor1;
-            _tmpTensorRefs[1] = tensor2;
-            return ops.Concat(_tmpTensorRefs, axis);
+        public static T Cat<T>(this Ops ops, T tensor1, T tensor2, int axis = 0) where T : Tensor {
+            return ops.Concat(tensor1, tensor2, axis);
         }
 
         /// <summary>
         /// Alias for <see cref="Ops.Concat(Tensor[], int)"/> to match numpy.concatenate()
-        /// naming and for convenience by adding a List<TensorFloat> overload.
+        /// naming and for convenience of not needing to create a Tensor array.
         /// </summary>
-        public static Tensor Concatenate(this Ops ops, List<Tensor> tensors, int axis = 0) {
+        public static T Concatenate<T>(this Ops ops, T tensor1, T tensor2, int axis = 0) where T : Tensor {
+            return ops.Concat(tensor1, tensor2, axis);
+        }
+
+        /// <summary>
+        /// A List<TensorFloat> overload for Concat().
+        /// </summary>
+        public static Tensor Cat(this Ops ops, List<Tensor> tensors, int axis = 0) {
             return ops.Concat(tensors, axis);
         }
 
-        public static TensorFloat Concatenate(this Ops ops, TensorFloat tensor1, TensorFloat tensor2, int axis = 0) {
-            return ops.Concatenate(tensor1 as Tensor, tensor2 as Tensor, axis) as TensorFloat;
-        }
-
-        public static TensorInt Concatenate(this Ops ops, TensorInt tensor1, TensorInt tensor2, int axis = 0) {
-            return ops.Concatenate(tensor1 as Tensor, tensor2 as Tensor, axis) as TensorInt;
+        /// <summary>
+        /// A List<TensorFloat> overload for Concat().
+        /// </summary>
+        public static Tensor Concatenate(this Ops ops, List<Tensor> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis);
         }
 
         /// <summary>

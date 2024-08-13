@@ -403,21 +403,24 @@ namespace Doji.AI {
                 return O;
             int start = 0;
             foreach (var tensor in tensors) {
+                int length = tensor.shape[axis];
+                if (length == 0)
+                    continue;
                 _backend.SliceSet(tensor, O, axis, start, 1);
-                start += tensor.shape[axis];
+                start += length;
             }
             return O;
         }
 
-        /*public Tensor Concat(Tensor tensor1, Tensor tensor2, int axis) {
-            var O = AllocNoData(TensorShapeHelper.ConcatShape(tensor1, tensor2, axis), tensor1.dataType);
+        public T Concat<T>(T tensor1, T tensor2, int axis) where T : Tensor {
+            var O = AllocNoData(TensorShapeHelper.ConcatShape(tensor1, tensor2, axis), tensor1.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
 
-            _backend.SliceSet(tensor1, O, axis, ..., ...);
-            _backend.SliceSet(tensor2, O, axis, ..., ...);
+            _backend.SliceSet(tensor1, O, axis, 0, 1);
+            _backend.SliceSet(tensor2, O, axis, tensor1.shape[axis], 1);
             return O;
-        }*/
+        }
 
         public T Split<T>(T X, int axis, int start = 0, int end = int.MaxValue) where T : Tensor {
             var O = AllocNoData(X.shape.Split(axis, start, end), X.dataType) as T;
