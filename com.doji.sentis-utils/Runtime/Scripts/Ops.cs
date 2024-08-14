@@ -27,10 +27,21 @@ namespace Doji.AI {
                 throw new ArgumentNullException(nameof(tensor), "The tensor to take ownership of was null");
             }
             if (!_pool.Contains(tensor)) {
-                UnityEngine.Debug.LogWarning($"Unable to find Tensor {tensor} in the temporary pool of Ops tensors. Maybe it was already disposed?");
+                UnityEngine.Debug.LogWarning($"Unable to find Tensor {tensor} in the temporary pool of Ops tensors. Check if it hasn't already been disposed.");
                 return null;
             }
             return _pool.Remove(tensor) ? tensor : null;
+        }
+
+        public bool WaveOwnership(Tensor tensor) {
+            if (tensor == null) {
+                throw new ArgumentNullException(nameof(tensor), "The tensor to wave ownership of was null");
+            }
+            if (_pool.Contains(tensor)) {
+                UnityEngine.Debug.LogWarning($"The Tensor {tensor} was already present in the temporary pool of Ops tensors.");
+                return false;
+            }
+            return _pool.Add(tensor);
         }
 
         public void FlushTensors() {
