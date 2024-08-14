@@ -305,6 +305,21 @@ namespace Doji.AI {
         /// <summary>
         /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
         /// </summary>
+        public static TensorInt Full(this Ops ops, TensorShape shape, bool fillvalue) {
+            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Creates a 1D tensor of the given <paramref name="size"/> size filled with <paramref name="fillValue"/>.
+        /// </summary>
+        public static TensorInt Full(this Ops ops, int size, bool fillvalue) {
+            TensorShape shape = new TensorShape(size);
+            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
+        /// </summary>
         public static TensorFloat Full(this Ops ops, TensorShape shape, float fillvalue) {
             return ops.NewTensorFloat(shape, ArrayUtils.Full(shape.length, fillvalue));
         }
