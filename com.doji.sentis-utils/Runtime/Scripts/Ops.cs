@@ -74,6 +74,32 @@ namespace Doji.AI {
             return tensor;
         }
 
+        public T AllocNoData<T>(TensorShape shape) where T : Tensor {
+            switch (typeof(T)) {
+                case Type floatType when floatType == typeof(TensorFloat):
+                    return TensorFloatAllocNoData(shape) as T;
+                case Type intType when intType == typeof(TensorInt):
+                    return TensorIntAllocNoData(shape) as T;
+                case Type shortType when shortType == typeof(TensorShort):
+                case Type byteType when byteType == typeof(TensorByte):
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
+            }
+        }
+
+        internal TensorFloat TensorFloatAllocZeros(TensorShape shape) {
+            var tensor = TensorFloat.AllocZeros(shape);
+            AddToPool(tensor);
+            return tensor;
+        }
+
+        internal TensorInt TensorIntAllocZeros(TensorShape shape) {
+            var tensor = TensorInt.AllocZeros(shape);
+            AddToPool(tensor);
+            return tensor;
+        }
+
         public TensorFloat NewTensorFloat(TensorShape shape, float[] data) {
             var tensor = new TensorFloat(shape, data);
             AddToPool(tensor);
@@ -84,6 +110,64 @@ namespace Doji.AI {
             var tensor = new TensorInt(shape, data, 0);
             AddToPool(tensor);
             return tensor;
+        }
+
+        public Tensor Ones(TensorShape shape, DataType type) {
+            return type switch {
+                DataType.Float => NewTensorFloat(shape, OnesF(shape.length)),
+                DataType.Int => NewTensorInt(shape, OnesI(shape.length)),
+                DataType.Short or DataType.Byte => throw new NotImplementedException(),
+                _ => throw new ArgumentException($"Invalid data type '{type}'"),
+            };
+        }
+
+        public T Ones<T>(TensorShape shape) where T : Tensor {
+            switch (typeof(T)) {
+                case Type floatType when floatType == typeof(TensorFloat):
+                    return NewTensorFloat(shape, OnesF(shape.length)) as T;
+                case Type intType when intType == typeof(TensorInt):
+                    return NewTensorInt(shape, OnesI(shape.length)) as T;
+                case Type shortType when shortType == typeof(TensorShort):
+                case Type byteType when byteType == typeof(TensorByte):
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
+            }
+        }
+
+        public Tensor Zeros(TensorShape shape, DataType type) {
+            return type switch {
+                DataType.Float => TensorFloatAllocZeros(shape),
+                DataType.Int => TensorIntAllocZeros(shape),
+                DataType.Short or DataType.Byte => throw new NotImplementedException(),
+                _ => throw new ArgumentException($"Invalid data type '{type}'"),
+            };
+        }
+
+        public T Zeros<T>(TensorShape shape) where T : Tensor {
+            switch (typeof(T)) {
+                case Type floatType when floatType == typeof(TensorFloat):
+                    return TensorFloatAllocZeros(shape) as T;
+                case Type intType when intType == typeof(TensorInt):
+                    return TensorIntAllocZeros(shape) as T;
+                case Type shortType when shortType == typeof(TensorShort):
+                case Type byteType when byteType == typeof(TensorByte):
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
+            }
+        }
+
+        private static int[] OnesI(int num) {
+            int[] ones = new int[num];
+            Array.Fill(ones, 1);
+            return ones;
+        }
+
+        private static float[] OnesF(int num) {
+            float[] ones = new float[num];
+            Array.Fill(ones, 1);
+            return ones;
         }
 
         public TensorFloat Max(TensorFloat tensor1, TensorFloat tensor2) {
