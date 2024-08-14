@@ -295,6 +295,20 @@ namespace Doji.AI {
             return ops.Where(mask, A, tensor);
         }
 
+        /// <summary>
+        /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
+        /// </summary>
+        public static TensorInt Full(this Ops ops, TensorShape shape, int fillvalue) {
+            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue));
+        }
+
+        /// <summary>
+        /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
+        /// </summary>
+        public static TensorFloat Full(this Ops ops, TensorShape shape, float fillvalue) {
+            return ops.NewTensorFloat(shape, ArrayUtils.Full(shape.length, fillvalue));
+        }
+
         //TODO: needs test, https://discuss.pytorch.org/t/alternatives-to-torch-isin/190297/3
         /*public static TensorInt IsIn(this Ops ops, TensorInt tensor1, TensorInt tensor2) {
             tensor1.Reshape(tensor1.shape.Unsqueeze(1));

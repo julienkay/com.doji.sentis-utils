@@ -283,15 +283,15 @@ namespace Doji.AI {
         /// <summary>
         /// numpy.full
         /// </summary>
-        public static T[] Full<T>(int n, T x) {
-            if (n < 0) {
-                throw new ArgumentException("Value of n must be non-negative.");
+        public static T[] Full<T>(int size, T fillValue) {
+            if (size < 0) {
+                throw new ArgumentException("Size must be non-negative.");
             }
 
-            T[] array = new T[n];
+            T[] array = new T[size];
 
-            for (int i = 0; i < n; i++) {
-                array[i] = x;
+            for (int i = 0; i < size; i++) {
+                array[i] = fillValue;
             }
 
             return array;
