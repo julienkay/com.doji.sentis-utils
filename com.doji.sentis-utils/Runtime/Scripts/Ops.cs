@@ -106,8 +106,20 @@ namespace Doji.AI {
             return tensor;
         }
 
+        public TensorFloat NewTensorFloat(float srcData) {
+            var tensor = new TensorFloat(new TensorShape(), new[] { srcData });
+            AddToPool(tensor);
+            return tensor;
+        }
+
         public TensorInt NewTensorInt(TensorShape shape, int[] data) {
             var tensor = new TensorInt(shape, data, 0);
+            AddToPool(tensor);
+            return tensor;
+        }
+
+        public TensorInt NewTensorInt(int srcData) {
+            var tensor = new TensorInt(new TensorShape(), new[] { srcData });
             AddToPool(tensor);
             return tensor;
         }
