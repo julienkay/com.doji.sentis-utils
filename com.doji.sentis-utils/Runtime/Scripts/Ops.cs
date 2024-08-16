@@ -602,7 +602,7 @@ namespace Doji.AI {
         }
 
         public T GatherElements<T>(T X, TensorInt indices, int axis) where T : Tensor {
-            var O = AllocNoData(X.dataType, X.shape) as T;
+            var O = AllocNoData(indices.shape, X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
             _backend.GatherElements(X, indices, O, axis);
