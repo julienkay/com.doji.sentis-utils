@@ -15,8 +15,8 @@ namespace Doji.AI {
         /// Computes the q-th quantiles of each row of the input tensor along the dimension dim.
         /// torch.quantile
         /// </summary>
-        public static TensorFloat Quantile(this Ops ops, TensorFloat tensor, float q, int dim) {
-            TensorFloat sorted = ops.Sort(tensor, dim);
+        public static Tensor<float> Quantile(this Ops ops, Tensor<float> tensor, float q, int dim) {
+            Tensor<float> sorted = ops.Sort(tensor, dim);
 
             if (q < 0 || q > 1) {
                 throw new ArgumentException("Quantile value must be between 0 and 1");
@@ -24,25 +24,25 @@ namespace Doji.AI {
 
             float index = (tensor.shape[dim] - 1) * q;
 
-            using TensorInt lowerIndex = new TensorInt((int)MathF.Floor(index));
-            using TensorInt upperIndex = new TensorInt((int)MathF.Ceiling(index));
+            using Tensor<int> lowerIndex = new Tensor<int>(new TensorShape(), new int[] { (int)MathF.Floor(index) } );
+            using Tensor<int> upperIndex = new Tensor<int>(new TensorShape(), new int[] { (int)MathF.Ceiling(index) } );
 
-            TensorFloat lowerValues = ops.Gather(sorted, lowerIndex, dim);
-            TensorFloat upperValues = ops.Gather(sorted, upperIndex, dim);
+            Tensor<float> lowerValues = ops.Gather(sorted, lowerIndex, dim);
+            Tensor<float> upperValues = ops.Gather(sorted, upperIndex, dim);
             float weights = index - (int)MathF.Floor(index);
 
-            TensorFloat sub = ops.Sub(upperValues, lowerValues);
-            TensorFloat mul = ops.Mul(sub, weights);
-            TensorFloat interpolated = ops.Add(mul, lowerValues);
+            Tensor<float> sub = ops.Sub(upperValues, lowerValues);
+            Tensor<float> mul = ops.Mul(sub, weights);
+            Tensor<float> interpolated = ops.Add(mul, lowerValues);
             return interpolated;
         }
 
-        public static TensorFloat Sort(this Ops ops, TensorFloat tensor, int dim) {
+        public static Tensor<float> Sort(this Ops ops, Tensor<float> tensor, int dim) {
             int num = tensor.shape[dim];
             return ops.TopK(tensor, num, dim, largest: false /* sort lowest-to-highest */, true).values;
         }
 
-        public static TensorFloat Clamp(this Ops ops, TensorFloat tensor, TensorFloat min, TensorFloat max) {
+        public static Tensor<float> Clamp(this Ops ops, Tensor<float> tensor, Tensor<float> min, Tensor<float> max) {
             return ops.Min(ops.Max(tensor, min), max);
         }
 
@@ -63,14 +63,14 @@ namespace Doji.AI {
         }
 
         /// <summary>
-        /// A List<TensorFloat> overload for Concat().
+        /// A List<Tensor> overload for Concat().
         /// </summary>
         public static Tensor Cat(this Ops ops, List<Tensor> tensors, int axis = 0) {
             return ops.Concat(tensors, axis);
         }
 
         /// <summary>
-        /// A List<TensorFloat> overload for Concat().
+        /// A List<Tensor> overload for Concat().
         /// </summary>
         public static Tensor Concatenate(this Ops ops, List<Tensor> tensors, int axis = 0) {
             return ops.Concat(tensors, axis);
@@ -79,7 +79,7 @@ namespace Doji.AI {
         /// <summary>
         /// Similar to torch.repeat() or numpy.tile()
         /// </summary>
-        public static TensorFloat Repeat(this Ops ops, TensorFloat tensor, int repeats, int axis) {
+        public static Tensor<float> Repeat(this Ops ops, Tensor<float> tensor, int repeats, int axis) {
             if (repeats <= 0) {
                 throw new ArgumentException($"Repeat count must be greater than zero, was {repeats}.", nameof(repeats));
             }
@@ -96,7 +96,7 @@ namespace Doji.AI {
         /// <summary>
         /// Similar to torch.repeat() or numpy.tile()
         /// </summary>
-        public static TensorInt Repeat(this Ops ops, TensorInt tensor, int repeats, int axis) {
+        public static Tensor<int> Repeat(this Ops ops, Tensor<int> tensor, int repeats, int axis) {
             if (repeats <= 0) {
                 throw new ArgumentException($"Repeat count must be greater than zero, was {repeats}.", nameof(repeats));
             }
@@ -113,7 +113,7 @@ namespace Doji.AI {
         /// <summary>
         /// Similar to torch.repeat_interleave() or numpy.repeat()
         /// </summary>
-        public static TensorFloat RepeatInterleave(this Ops ops, TensorFloat tensor, int repeats, int dim) {
+        /*public static Tensor<float> RepeatInterleave(this Ops ops, Tensor<float> tensor, int repeats, int dim) {
             if (repeats <= 0) {
                 throw new ArgumentException($"Repeat count must be greater than zero, was {repeats}.", nameof(repeats));
             }
@@ -134,7 +134,7 @@ namespace Doji.AI {
         /// <summary>
         /// Similar to torch.repeat_interleave() or numpy.repeat()
         /// </summary>
-        public static TensorInt RepeatInterleave(this Ops ops, TensorInt tensor, int repeats, int dim) {
+        public static Tensor<int> RepeatInterleave(this Ops ops, Tensor<int> tensor, int repeats, int dim) {
             if (repeats <= 0) {
                 throw new ArgumentException($"Repeat count must be greater than zero, was {repeats}.", nameof(repeats));
             }
@@ -150,24 +150,24 @@ namespace Doji.AI {
             var transpose = ops.Transpose(repeat, new int[] { 1, 0 });
             transpose.Reshape(flatShape);
             return transpose;
-        }
+        }*/
 
         /// <summary>
         /// Alias for <see cref="Ops.Split{T}(T, int, int, int)"/> to match the
         /// arguments of numpy.split() or torch.chunk() i.e. providing <paramref name="sections"/>
         /// that the original tensor is split into.
         /// </summary>
-        public static void Split(this Ops ops, Tensor tensor, int sections, int axis = 0, List<TensorFloat> splitTensors = null) {
+        public static void Split(this Ops ops, Tensor tensor, int sections, int axis = 0, List<Tensor<float>> splitTensors = null) {
             if (tensor.shape[axis] % sections != 0) {
                 throw new ArgumentException($"Tensor dimension {axis} (length: {tensor.shape[axis]}) can not be divided into {sections} sections.");
             }
-            splitTensors ??= new List<TensorFloat>();
+            splitTensors ??= new List<Tensor<float>>();
             splitTensors.Clear();
 
             int step = tensor.shape[axis] / sections;
             int end = tensor.shape[axis] - step;
             for (int i = 0; i < end; i += step) {
-                var section = ops.Split(tensor, axis: axis, i, i + step) as TensorFloat;
+                var section = ops.Split(tensor, axis: axis, i, i + step) as Tensor<float>;
                 splitTensors.Add(section);
             }
         }
@@ -175,15 +175,15 @@ namespace Doji.AI {
         /// <summary>
         /// Splits a tensor into two sections.
         /// </summary>
-        public static (TensorFloat a, TensorFloat b) SplitHalf(this Ops ops, Tensor tensor, int axis = 0) {
+        public static (Tensor<float> a, Tensor<float> b) SplitHalf(this Ops ops, Tensor tensor, int axis = 0) {
             if (tensor.shape[axis] % 2 != 0) {
                 throw new ArgumentException($"Tensor dimension {axis} (length: {tensor.shape[axis]}) can not be divided into 2 sections.");
             }
             int half = tensor.shape[axis] / 2;
             int start = 0;
             int end = tensor.shape[axis];
-            var a = ops.Split(tensor, axis: axis, start, half) as TensorFloat;
-            var b = ops.Split(tensor, axis: axis, half, end) as TensorFloat;
+            var a = ops.Split(tensor, axis: axis, start, half) as Tensor<float>;
+            var b = ops.Split(tensor, axis: axis, half, end) as Tensor<float>;
             return (a, b);
         }
 
@@ -282,50 +282,50 @@ namespace Doji.AI {
         /// <summary>
         /// Fills elements of <paramref name="tensor"/> with <paramref name="value"/> where <paramref name="mask"/> is 1
         /// </summary>
-        public static TensorFloat MaskedFill(this Ops ops, TensorFloat tensor, TensorInt mask, float value) {
-            using TensorFloat A = new TensorFloat(value);
+        public static Tensor<float> MaskedFill(this Ops ops, Tensor<float> tensor, Tensor<int> mask, float value) {
+            using Tensor<float> A = new Tensor<float>(new TensorShape(), new float[] { value });
             return ops.Where(mask, A, tensor);
         }
 
         /// <summary>
         /// Fills elements of <paramref name="tensor"/> with <paramref name="value"/> where <paramref name="mask"/> is 1
         /// </summary>
-        public static TensorInt MaskedFill(this Ops ops, TensorInt tensor, TensorInt mask, int value) {
-            using TensorInt A = new TensorInt(value);
+        public static Tensor<int> MaskedFill(this Ops ops, Tensor<int> tensor, Tensor<int> mask, int value) {
+            using Tensor<int> A = new Tensor<int>(new TensorShape(), new int[] { value });
             return ops.Where(mask, A, tensor);
         }
 
         /// <summary>
         /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
         /// </summary>
-        public static TensorInt Full(this Ops ops, TensorShape shape, int fillvalue) {
-            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue));
+        public static Tensor<int> Full(this Ops ops, TensorShape shape, int fillvalue) {
+            return ops.NewTensor(shape, ArrayUtils.Full(shape.length, fillvalue));
         }
 
         /// <summary>
         /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
         /// </summary>
-        public static TensorInt Full(this Ops ops, TensorShape shape, bool fillvalue) {
-            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
+        public static Tensor<int> Full(this Ops ops, TensorShape shape, bool fillvalue) {
+            return ops.NewTensor(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
         }
 
         /// <summary>
         /// Creates a 1D tensor of the given <paramref name="size"/> size filled with <paramref name="fillValue"/>.
         /// </summary>
-        public static TensorInt Full(this Ops ops, int size, bool fillvalue) {
+        public static Tensor<int> Full(this Ops ops, int size, bool fillvalue) {
             TensorShape shape = new TensorShape(size);
-            return ops.NewTensorInt(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
+            return ops.NewTensor(shape, ArrayUtils.Full(shape.length, fillvalue ? 1 : 0));
         }
 
         /// <summary>
         /// Creates a tensor of the given <paramref name="shape"/> size filled with <paramref name="fillValue"/>.
         /// </summary>
-        public static TensorFloat Full(this Ops ops, TensorShape shape, float fillvalue) {
-            return ops.NewTensorFloat(shape, ArrayUtils.Full(shape.length, fillvalue));
+        public static Tensor<float> Full(this Ops ops, TensorShape shape, float fillvalue) {
+            return ops.NewTensor(shape, ArrayUtils.Full(shape.length, fillvalue));
         }
 
         //TODO: needs test, https://discuss.pytorch.org/t/alternatives-to-torch-isin/190297/3
-        /*public static TensorInt IsIn(this Ops ops, TensorInt tensor1, TensorInt tensor2) {
+        /*public static Tensor<int> IsIn(this Ops ops, Tensor<int> tensor1, Tensor<int> tensor2) {
             tensor1.Reshape(tensor1.shape.Unsqueeze(1));
             var eq = ops.Equal(tensor1, tensor2);
             var sum = ops.ReduceSum(eq, new int[] { 0, 1 });

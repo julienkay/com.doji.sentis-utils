@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Sentis;
+using static Doji.AI.TensorShapeHelper;
 
 namespace Doji.AI {
 
@@ -8,18 +9,14 @@ namespace Doji.AI {
 
         public BackendType backendType { get; private set; }
 
-        internal IBackend _backend;
-
         private readonly HashSet<Tensor> _pool = new HashSet<Tensor>();
 
         public Ops(BackendType backend) {
             backendType = backend;
-            _backend = WorkerFactory.CreateBackend(backend);
         }
 
         public void Dispose() {
             FlushTensors();
-            _backend.Dispose();
         }
 
         public Tensor TakeOwnership(Tensor tensor) {
@@ -61,9 +58,9 @@ namespace Doji.AI {
         internal Tensor AllocNoData(DataType dataType, TensorShape shape) {
             switch (dataType) {
                 case DataType.Float:
-                    return TensorFloatAllocNoData(shape);
+                    return AllocNoData<float>(shape);
                 case DataType.Int:
-                    return TensorIntAllocNoData(shape);
+                    return AllocNoData<int>(shape);
                 default:
                     throw new NotImplementedException();
             }
@@ -73,72 +70,48 @@ namespace Doji.AI {
             return AllocNoData(dataType, shape);
         }
 
-        internal TensorFloat TensorFloatAllocNoData(TensorShape shape) {
-            var tensor = TensorFloat.AllocNoData(shape);
+        internal Tensor<T> AllocNoData<T>(TensorShape shape) where T : unmanaged {
+            var tensor = new Tensor<T>(shape, null);
             AddToPool(tensor);
             return tensor;
         }
 
-        internal TensorInt TensorIntAllocNoData(TensorShape shape) {
-            var tensor = TensorInt.AllocNoData(shape);
-            AddToPool(tensor);
-            return tensor;
-        }
-
-        public T AllocNoData<T>(TensorShape shape) where T : Tensor {
+        /*public T AllocNoData<T>(TensorShape shape) where T : Tensor {
             switch (typeof(T)) {
-                case Type floatType when floatType == typeof(TensorFloat):
-                    return TensorFloatAllocNoData(shape) as T;
-                case Type intType when intType == typeof(TensorInt):
-                    return TensorIntAllocNoData(shape) as T;
+                case Type floatType when floatType == typeof(Tensor<float>):
+                    return AllocNoData<float>(shape) as T;
+                case Type intType when intType == typeof(Tensor<int>):
+                    return AllocNoData<int>(shape) as T;
                 case Type shortType when shortType == typeof(TensorShort):
                 case Type byteType when byteType == typeof(TensorByte):
                     throw new NotImplementedException();
                 default:
                     throw new ArgumentException($"Invalid data type '{typeof(T)}'");
             }
-        }
+        }*/
 
-        internal TensorFloat TensorFloatAllocZeros(TensorShape shape) {
-            var tensor = TensorFloat.AllocZeros(shape);
+        internal Tensor<T> AllocZeros<T>(TensorShape shape) where T : unmanaged {
+            var tensor = new Tensor<T>(shape);
             AddToPool(tensor);
             return tensor;
         }
 
-        internal TensorInt TensorIntAllocZeros(TensorShape shape) {
-            var tensor = TensorInt.AllocZeros(shape);
+        public Tensor<T> NewTensor<T>(TensorShape shape, T[] data) where T : unmanaged {
+            var tensor = new Tensor<T>(shape, data);
             AddToPool(tensor);
             return tensor;
         }
 
-        public TensorFloat NewTensorFloat(TensorShape shape, float[] data) {
-            var tensor = new TensorFloat(shape, data);
-            AddToPool(tensor);
-            return tensor;
-        }
-
-        public TensorFloat NewTensorFloat(float srcData) {
-            var tensor = new TensorFloat(new TensorShape(), new[] { srcData });
-            AddToPool(tensor);
-            return tensor;
-        }
-
-        public TensorInt NewTensorInt(TensorShape shape, int[] data) {
-            var tensor = new TensorInt(shape, data, 0);
-            AddToPool(tensor);
-            return tensor;
-        }
-
-        public TensorInt NewTensorInt(int srcData) {
-            var tensor = new TensorInt(new TensorShape(), new[] { srcData });
+        public Tensor<T> NewTensor<T>(T srcData) where T : unmanaged {
+            var tensor = new Tensor<T>(new TensorShape(), new[] { srcData });
             AddToPool(tensor);
             return tensor;
         }
 
         public Tensor Ones(TensorShape shape, DataType type) {
             return type switch {
-                DataType.Float => NewTensorFloat(shape, OnesF(shape.length)),
-                DataType.Int => NewTensorInt(shape, OnesI(shape.length)),
+                DataType.Float => NewTensor<float>(shape, OnesF(shape.length)),
+                DataType.Int => NewTensor<int>(shape, OnesI(shape.length)),
                 DataType.Short or DataType.Byte => throw new NotImplementedException(),
                 _ => throw new ArgumentException($"Invalid data type '{type}'"),
             };
@@ -146,39 +119,29 @@ namespace Doji.AI {
 
         public T Ones<T>(TensorShape shape) where T : Tensor {
             switch (typeof(T)) {
-                case Type floatType when floatType == typeof(TensorFloat):
-                    return NewTensorFloat(shape, OnesF(shape.length)) as T;
-                case Type intType when intType == typeof(TensorInt):
-                    return NewTensorInt(shape, OnesI(shape.length)) as T;
-                case Type shortType when shortType == typeof(TensorShort):
-                case Type byteType when byteType == typeof(TensorByte):
+                case Type floatType when floatType == typeof(Tensor<float>):
+                    return NewTensor<float>(shape, OnesF(shape.length)) as T;
+                case Type intType when intType == typeof(Tensor<int>):
+                    return NewTensor<int>(shape, OnesI(shape.length)) as T;
+                case Type shortType when shortType == typeof(short):
+                case Type byteType when byteType == typeof(byte):
                     throw new NotImplementedException();
                 default:
-                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
+                    throw new ArgumentException($"Invalid tensor data type '{typeof(T)}'");
             }
         }
 
         public Tensor Zeros(TensorShape shape, DataType type) {
             return type switch {
-                DataType.Float => TensorFloatAllocZeros(shape),
-                DataType.Int => TensorIntAllocZeros(shape),
+                DataType.Float => AllocZeros<float>(shape),
+                DataType.Int => AllocZeros<int>(shape),
                 DataType.Short or DataType.Byte => throw new NotImplementedException(),
-                _ => throw new ArgumentException($"Invalid data type '{type}'"),
+                _ => throw new ArgumentException($"Invalid tensor data type '{type}'"),
             };
         }
 
-        public T Zeros<T>(TensorShape shape) where T : Tensor {
-            switch (typeof(T)) {
-                case Type floatType when floatType == typeof(TensorFloat):
-                    return TensorFloatAllocZeros(shape) as T;
-                case Type intType when intType == typeof(TensorInt):
-                    return TensorIntAllocZeros(shape) as T;
-                case Type shortType when shortType == typeof(TensorShort):
-                case Type byteType when byteType == typeof(TensorByte):
-                    throw new NotImplementedException();
-                default:
-                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
-            }
+        public Tensor<T> Zeros<T>(TensorShape shape) where T : unmanaged {
+            return AllocZeros<T>(shape);
         }
 
         private static int[] OnesI(int num) {
@@ -193,270 +156,283 @@ namespace Doji.AI {
             return ones;
         }
 
-        public TensorFloat Max(TensorFloat tensor1, TensorFloat tensor2) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
+        public Tensor<float> Max(Tensor<float> tensor1, Tensor<float> tensor2) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            _backend.Max(tensor1, tensor2, O);
+            //_backend.Max(tensor1, tensor2, O);
             return O;
         }
 
-        public TensorFloat Min(TensorFloat tensor1, TensorFloat tensor2) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
+        private Model _max;
+        private Model GetMax(Tensor tensor1, Tensor tensor2) {
+            if (_max == null) {
+                FunctionalGraph graph = new FunctionalGraph();
+                FunctionalTensor x = graph.AddInput<float>(tensor1.shape);
+                FunctionalTensor y = graph.AddInput<float>(new TensorShape(6));
+                FunctionalTensor prod = x * y;
+                FunctionalTensor reduce = Functional.ReduceSum(prod, dim: 0, keepdim: false);
+                _max = graph.Compile(reduce, prod);
+            }
+            return _max;
+        }
+
+        public Tensor<float> Min(Tensor<float> tensor1, Tensor<float> tensor2) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            _backend.Min(tensor1, tensor2, O);
+            //_backend.Min(tensor1, tensor2, O);
             return O;
         }
 
-        public TensorFloat ReduceMax(TensorFloat X, ReadOnlySpan<int> axes) {
-            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+        public Tensor<float> ReduceMax(Tensor<float> X, int axis) {
+            var O = AllocNoData<float>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceMax(X, O, axes);
+            //_backend.ReduceMax(X, O, axis);
             return O;
         }
 
-        public TensorInt ReduceMax(TensorInt X, ReadOnlySpan<int> axes) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axes));
+        public Tensor<int> ReduceMax(Tensor<int> X, int axis) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceMax(X, O, axes);
+            //_backend.ReduceMax(X, O, axis);
             return O;
         }
 
-        public TensorFloat ReduceMean(TensorFloat X, ReadOnlySpan<int> axes) {
-            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+        public Tensor<float> ReduceMean(Tensor<float> X, int axis) {
+            var O = AllocNoData<float>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceMean(X, O, axes);
+            //_backend.ReduceMean(X, O, axis);
             return O;
         }
 
-        public TensorFloat ReduceMin(TensorFloat X, ReadOnlySpan<int> axes) {
-            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+        public Tensor<float> ReduceMin(Tensor<float> X, int axis) {
+            var O = AllocNoData<float>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceMin(X, O, axes);
+            //_backend.ReduceMin(X, O, axis);
             return O;
         }
 
-        public TensorInt ReduceMin(TensorInt X, ReadOnlySpan<int> axes) {
-            var O =TensorIntAllocNoData(X.shape.Reduce(axes));
+        public Tensor<int> ReduceMin(Tensor<int> X, int axis) {
+            var O =AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceMin(X, O, axes);
+            //_backend.ReduceMin(X, O, axis);
             return O;
         }
 
-        public TensorFloat ReduceSum(TensorFloat X, ReadOnlySpan<int> axes) {
-            var O = TensorFloatAllocNoData(X.shape.Reduce(axes));
+        public Tensor<float> ReduceSum(Tensor<float> X, int axis) {
+            var O = AllocNoData<float>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceSum(X, O, axes);
+            //_backend.ReduceSum(X, O, axis);
             return O;
         }
 
-        public TensorInt ReduceSum(TensorInt X, ReadOnlySpan<int> axes) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axes));
+        public Tensor<int> ReduceSum(Tensor<int> X, int axis) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ReduceSum(X, O, axes);
+            //_backend.ReduceSum(X, O, axis);
             return O;
         }
 
-        public TensorFloat Mul(TensorFloat A, TensorFloat B) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<float> Mul(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Mul(A, B, O);
+            //_backend.Mul(A, B, O);
             return O;
         }
 
-        public TensorInt Mul(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Mul(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Mul(A, B, O);
+            //_backend.Mul(A, B, O);
             return O;
         }
 
-        public TensorFloat Mul(TensorFloat A, float b) {
-            var O = TensorFloatAllocNoData(A.shape);
+        public Tensor<float> Mul(Tensor<float> A, float b) {
+            var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, b, 0);
+            //_backend.ScalarMad(A, O, b, 0);
             return O;
         }
 
-        public TensorFloat Mul(float a, TensorFloat B) {
-            var O = TensorFloatAllocNoData(B.shape);
+        public Tensor<float> Mul(float a, Tensor<float> B) {
+            var O = AllocNoData<float>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(B, O, a, 0);
+            //_backend.ScalarMad(B, O, a, 0);
             return O;
         }
 
-        public TensorFloat Sub(TensorFloat A, float b) {
-            var O = TensorFloatAllocNoData(A.shape);
+        public Tensor<float> Sub(Tensor<float> A, float b) {
+            var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, 1, -b);
+            //_backend.ScalarMad(A, O, 1, -b);
             return O;
         }
 
-        public TensorFloat Sub(float a, TensorFloat B) {
-            var O = TensorFloatAllocNoData(B.shape);
+        public Tensor<float> Sub(float a, Tensor<float> B) {
+            var O = AllocNoData<float>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(B, O, -1, a);
+            //_backend.ScalarMad(B, O, -1, a);
             return O;
         }
 
-        public TensorFloat Sub(TensorFloat A, TensorFloat B) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<float> Sub(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Sub(A, B, O);
+            //_backend.Sub(A, B, O);
             return O;
         }
 
-        public TensorInt Sub(TensorInt A, int b) {
-            var O = TensorIntAllocNoData(A.shape);
+        public Tensor<int> Sub(Tensor<int> A, int b) {
+            var O = AllocNoData<int>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, 1, -b);
+            //_backend.ScalarMad(A, O, 1, -b);
             return O;
         }
 
-        public TensorInt Sub(int a, TensorInt B) {
-            var O = TensorIntAllocNoData(B.shape);
+        public Tensor<int> Sub(int a, Tensor<int> B) {
+            var O = AllocNoData<int>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(B, O, -1, a);
+            //_backend.ScalarMad(B, O, -1, a);
             return O;
         }
 
-        public TensorInt Sub(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Sub(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Sub(A, B, O);
+            //_backend.Sub(A, B, O);
             return O;
         }
 
-        public TensorFloat Add(TensorFloat A, float b) {
-            var O = TensorFloatAllocNoData(A.shape);
+        public Tensor<float> Add(Tensor<float> A, float b) {
+            var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, 1, b);
+            //_backend.ScalarMad(A, O, 1, b);
             return O;
         }
 
-        public TensorFloat Add(TensorFloat A, TensorFloat B) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<float> Add(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Add(A, B, O);
+            //_backend.Add(A, B, O);
             return O;
         }
-        public TensorInt Add(TensorInt A, int b) {
-            var O = TensorIntAllocNoData(A.shape);
+        public Tensor<int> Add(Tensor<int> A, int b) {
+            var O = AllocNoData<int>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, 1, b);
-            return O;
-        }
-
-        public TensorInt Add(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
-            if (O.shape.HasZeroDims())
-                return O;
-            _backend.Add(A, B, O);
+            //_backend.ScalarMad(A, O, 1, b);
             return O;
         }
 
-        public TensorFloat Div(TensorFloat A, float b) {
-            var O = TensorFloatAllocNoData(A.shape);
+        public Tensor<int> Add(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ScalarMad(A, O, 1 / b, 0);
+            //_backend.Add(A, B, O);
             return O;
         }
 
-        public TensorFloat Div(TensorFloat A, TensorFloat B) {
-            var O = TensorFloatAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<float> Div(Tensor<float> A, float b) {
+            var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Div(A, B, O);
+            //_backend.ScalarMad(A, O, 1 / b, 0);
             return O;
         }
 
-        public TensorFloat Sqrt(TensorFloat X) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Div(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Sqrt(X, O);
+            //_backend.Div(A, B, O);
             return O;
         }
 
-        public TensorFloat Clip(TensorFloat X, float min, float max) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Sqrt(Tensor<float> X) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Clip(X, O, min, max);
+            //_backend.Sqrt(X, O);
             return O;
         }
 
-        public TensorInt Clip(TensorInt X, int min, int max) {
-            var O = TensorIntAllocNoData(X.shape);
+        public Tensor<float> Clip(Tensor<float> X, float min, float max) {
+            var O = AllocNoData<float>(X.shape);
+            if (O.shape.HasZeroDims())
+                return O;
+            //_backend.Clip(X, O, min, max);
+            return O;
+        }
+
+        public Tensor<int> Clip(Tensor<int> X, int min, int max) {
+            var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            _backend.Clip(X, O, min, max);
+            //_backend.Clip(X, O, min, max);
             return O;
         }
 
-        public TensorFloat Mad(TensorFloat X, float s, float b) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Mad(Tensor<float> X, float s, float b) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            _backend.ScalarMad(X, O, s, b);
+            //_backend.ScalarMad(X, O, s, b);
             return O;
         }
 
-        public TensorFloat Abs(TensorFloat X) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Abs(Tensor<float> X) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Abs(X, O);
+            //_backend.Abs(X, O);
             return O;
         }
 
-        public TensorFloat RandomNormal(TensorShape S, float mean, float scale, int seed) {
-            var O = TensorFloatAllocNoData(S);
+        public Tensor<float> RandomNormal(TensorShape S, float mean, float scale, int seed) {
+            var O = AllocNoData<float>(S);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.RandomNormal(O, mean, scale, seed);
+            //_backend.RandomNormal(O, mean, scale, seed);
             return O;
         }
 
-        public TensorFloat RandomNormal(TensorShape S, float mean, float scale, uint seed) {
-            var O = TensorFloatAllocNoData(S);
+        public Tensor<float> RandomNormal(TensorShape S, float mean, float scale, uint seed) {
+            var O = AllocNoData<float>(S);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.RandomNormal(O, mean, scale, unchecked((int)seed));
+            //_backend.RandomNormal(O, mean, scale, unchecked((int)seed));
             return O;
         }
 
-        public T Where<T>(TensorInt C, T A, T B) where T : Tensor {
+        public T Where<T>(Tensor<int> C, T A, T B) where T : Tensor {
             var O = AllocNoData(A.shape.Broadcast(B.shape.Broadcast(C.shape)), A.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Where(C, A, B, O);
+            //_backend.Where(C, A, B, O);
             return O;
         }
 
@@ -464,7 +440,7 @@ namespace Doji.AI {
             var O = AllocNoData(shape, X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Reshape(X, O);
+            //_backend.Reshape(X, O);
             return O;
         }
 
@@ -472,15 +448,15 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Broadcast(shape), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Expand(X, O);
+            //_backend.Expand(X, O);
             return O;
         }
 
-        public T Transpose<T>(T X) where T : Tensor {
+        /*public T Transpose<T>(T X) where T : Tensor {
             var O = AllocNoData(X.shape.Transpose(), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Transpose(X, O);
+            //_backend.Transpose(X, O);
             return O;
         }
 
@@ -488,9 +464,9 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Transpose(permutations), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Transpose(X, O, permutations);
+            //_backend.Transpose(X, O, permutations);
             return O;
-        }
+        }*/
 
         public Tensor Concat(Tensor[] tensors, int axis) {
             var O = AllocNoData(TensorShapeHelper.ConcatShape(tensors, axis), tensors[0].dataType);
@@ -498,7 +474,7 @@ namespace Doji.AI {
                 return O;
             int start = 0;
             foreach (var tensor in tensors) {
-                _backend.SliceSet(tensor, O, axis, start, 1);
+                //_backend.SliceSet(tensor, O, axis, start, 1);
                 start += tensor.shape[axis];
             }
             return O;
@@ -513,7 +489,7 @@ namespace Doji.AI {
                 int length = tensor.shape[axis];
                 if (length == 0)
                     continue;
-                _backend.SliceSet(tensor, O, axis, start, 1);
+                //_backend.SliceSet(tensor, O, axis, start, 1);
                 start += length;
             }
             return O;
@@ -524,8 +500,8 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims())
                 return O;
 
-            _backend.SliceSet(tensor1, O, axis, 0, 1);
-            _backend.SliceSet(tensor2, O, axis, tensor1.shape[axis], 1);
+            //_backend.SliceSet(tensor1, O, axis, 0, 1);
+            //_backend.SliceSet(tensor2, O, axis, tensor1.shape[axis], 1);
             return O;
         }
 
@@ -533,7 +509,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Split(axis, start, end), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Split(X, O, axis, start);
+            //_backend.Split(X, O, axis, start);
             return O;
         }
 
@@ -541,47 +517,47 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Slice(starts, ends, axes, steps), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Slice(X, O, starts, axes, steps);
+            //_backend.Slice(X, O, starts, axes, steps);
             return O;
         }
 
-        public TensorFloat Softmax(TensorFloat X, int axis = -1) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Softmax(Tensor<float> X, int axis = -1) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Softmax(X, O, axis);
+            //_backend.Softmax(X, O, axis);
             return O;
         }
 
-        public TensorFloat CumSum(TensorFloat X, int axis, bool reverse = false, bool exclusive = false) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> CumSum(Tensor<float> X, int axis, bool reverse = false, bool exclusive = false) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
+            //_backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
             return O;
         }
 
-        public TensorInt CumSum(TensorInt X, int axis, bool reverse = false, bool exclusive = false) {
-            var O = TensorIntAllocNoData(X.shape);
+        public Tensor<int> CumSum(Tensor<int> X, int axis, bool reverse = false, bool exclusive = false) {
+            var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
+            //_backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
             return O;
         }
 
-        public TensorFloat Neg(TensorFloat X) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Neg(Tensor<float> X) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Neg(X, O);
+            //_backend.Neg(X, O);
             return O;
         }
 
-        public TensorInt Neg(TensorInt X) {
-            var O = TensorIntAllocNoData(X.shape);
+        public Tensor<int> Neg(Tensor<int> X) {
+            var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Neg(X, O);
+            //_backend.Neg(X, O);
             return O;
         }
 
@@ -589,200 +565,201 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Tile(repeats), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Tile(X, O, repeats);
+            //_backend.Tile(X, O, repeats);
             return O;
         }
 
-        public T Gather<T>(T X, TensorInt indices, int axis) where T : Tensor {
+        public T Gather<T>(T X, Tensor<int> indices, int axis) where T : Tensor {
             var O = AllocNoData(ShapeInference.Gather(X.shape, indices.shape, axis), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Gather(X, indices, O, axis);
+            //_backend.Gather(X, indices, O, axis);
             return O;
         }
 
-        public T GatherElements<T>(T X, TensorInt indices, int axis) where T : Tensor {
+        public T GatherElements<T>(T X, Tensor<int> indices, int axis) where T : Tensor {
             var O = AllocNoData(indices.shape, X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.GatherElements(X, indices, O, axis);
+            //_backend.GatherElements(X, indices, O, axis);
             return O;
         }
 
-        public TensorInt ArgMax(TensorFloat X, int axis, bool selectLastIndex = false) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axis));
+        public Tensor<int> ArgMax(Tensor<float> X, int axis, bool selectLastIndex = false) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ArgMax(X, O, axis, selectLastIndex);
+            //_backend.ArgMax(X, O, axis, selectLastIndex);
             return O;
         }
 
-        public TensorInt ArgMax(TensorInt X, int axis, bool selectLastIndex = false) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axis));
+        public Tensor<int> ArgMax(Tensor<int> X, int axis, bool selectLastIndex = false) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ArgMax(X, O, axis, selectLastIndex);
+            //_backend.ArgMax(X, O, axis, selectLastIndex);
             return O;
         }
 
-        public TensorInt ArgMin(TensorFloat X, int axis, bool selectLastIndex) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axis));
+        public Tensor<int> ArgMin(Tensor<float> X, int axis, bool selectLastIndex) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ArgMin(X, O, axis, selectLastIndex);
+            //_backend.ArgMin(X, O, axis, selectLastIndex);
             return O;
         }
 
-        public TensorInt ArgMin(TensorInt X, int axis, bool keepdim, bool selectLastIndex) {
-            var O = TensorIntAllocNoData(X.shape.Reduce(axis, keepdim));
+        public Tensor<int> ArgMin(Tensor<int> X, int axis, bool keepdim, bool selectLastIndex) {
+            var O = AllocNoData<int>(X.shape.Reduce(axis, keepdim));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.ArgMin(X, O, axis, selectLastIndex);
+            //_backend.ArgMin(X, O, axis, selectLastIndex);
             return O;
         }
 
-        public TensorInt Greater(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Greater(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Greater(A, B, O);
+            //_backend.Greater(A, B, O);
             return O;
         }
 
-        public TensorInt Greater(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Greater(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Greater(A, B, O);
+            //_backend.Greater(A, B, O);
             return O;
         }
 
-        public TensorInt GreaterOrEqual(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> GreaterOrEqual(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.GreaterOrEqual(A, B, O);
+            //_backend.GreaterOrEqual(A, B, O);
             return O;
         }
 
-        public TensorInt GreaterOrEqual(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> GreaterOrEqual(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.GreaterOrEqual(A, B, O);
+            //_backend.GreaterOrEqual(A, B, O);
             return O;
         }
 
-        public TensorInt Less(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Less(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Less(A, B, O);
+            //_backend.Less(A, B, O);
             return O;
         }
 
-        public TensorInt Less(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Less(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Less(A, B, O);
+            //_backend.Less(A, B, O);
             return O;
         }
 
-        public TensorInt LessOrEqual(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> LessOrEqual(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.LessOrEqual(A, B, O);
+            //_backend.LessOrEqual(A, B, O);
             return O;
         }
 
-        public TensorInt LessOrEqual(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> LessOrEqual(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.LessOrEqual(A, B, O);
+            //_backend.LessOrEqual(A, B, O);
             return O;
         }
 
-        public TensorInt Equal(TensorFloat A, TensorFloat B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Equal(Tensor<float> A, Tensor<float> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Equal(A, B, O);
+            //_backend.Equal(A, B, O);
             return O;
         }
 
-        public TensorInt Equal(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Equal(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Equal(A, B, O);
+            //_backend.Equal(A, B, O);
             return O;
         }
 
-        public TensorInt Or(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Or(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Or(A, B, O);
+            //_backend.Or(A, B, O);
             return O;
         }
 
-        public TensorInt And(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> And(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.And(A, B, O);
+            //_backend.And(A, B, O);
             return O;
         }
 
-        public TensorInt Xor(TensorInt A, TensorInt B) {
-            var O = TensorIntAllocNoData(TensorShapeHelper.BroadcastShape(A, B));
+        public Tensor<int> Xor(Tensor<int> A, Tensor<int> B) {
+            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Xor(A, B, O);
+            //_backend.Xor(A, B, O);
             return O;
         }
 
-        public TensorInt Not(TensorInt X) {
-            var O = TensorIntAllocNoData(X.shape);
+        public Tensor<int> Not(Tensor<int> X) {
+            var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Not(X, O);
+            //_backend.Not(X, O);
             return O;
         }
 
-        public TensorInt Cast(TensorFloat X) {
-            var O = TensorIntAllocNoData(X.shape);
+        public Tensor<int> Cast(Tensor<float> X) {
+            var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Cast(X, O);
+            //_backend.Cast(X, O);
             return O;
         }
 
-        public TensorFloat Cast(TensorInt X) {
-            var O = TensorFloatAllocNoData(X.shape);
+        public Tensor<float> Cast(Tensor<int> X) {
+            var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            _backend.Cast(X, O);
+            //_backend.Cast(X, O);
             return O;
         }
 
-        public (TensorFloat values, TensorInt indices) TopK(TensorFloat X, int k, int axis, bool largest, bool sorted) {
-            var outputShape = new TensorShape(X.shape);
+        public (Tensor<float> values, Tensor<int> indices) TopK(Tensor<float> X, int k, int axis, bool largest, bool sorted) {
+            var outputShape = X.shape;
             outputShape[axis] = k;
 
-            var values = TensorFloatAllocNoData(outputShape);
-            var indices = TensorIntAllocNoData(outputShape);
-            if (!outputShape.HasZeroDims())
-                _backend.TopK(X, values, indices, k, axis, largest);
+            var values = AllocNoData<float>(outputShape);
+            var indices = AllocNoData<int>(outputShape);
+
+            //if (!outputShape.HasZeroDims())
+                //_backend.TopK(X, values, indices, k, axis, largest);
             return (values, indices);
         }
 
-        public TensorFloat Copy(Tensor tensor) {
-            var copy = TensorFloatAllocNoData(tensor.shape);
-            _backend.MemCopy(tensor, copy);
+        public Tensor<float> Copy(Tensor tensor) {
+            var copy = AllocNoData<float>(tensor.shape);
+            //_backend.MemCopy(tensor, copy);
             return copy;
         }
     }
