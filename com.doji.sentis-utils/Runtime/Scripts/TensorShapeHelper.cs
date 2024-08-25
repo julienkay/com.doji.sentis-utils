@@ -80,5 +80,9 @@ namespace Doji.AI {
         public static TensorShape Tile(this TensorShape shape, ReadOnlySpan<int> repeats) {
             throw new NotImplementedException();
         }
+
+        public static TensorShape Transpose(this TensorShape shape, ReadOnlySpan<int> premutations) {
+            throw new NotImplementedException();
+        }
     }
 }

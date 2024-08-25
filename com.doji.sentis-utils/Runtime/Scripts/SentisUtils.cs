@@ -72,15 +72,15 @@ namespace Doji.AI {
         /// <summary>
         /// A List<TensorFloat> overload for Cat().
         /// </summary>
-        public static TensorFloat Cat(this Ops ops, List<TensorFloat> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis) as TensorFloat;
+        public static Tensor<float> Cat(this Ops ops, List<Tensor<float>> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as Tensor<float>;
         }
 
         /// <summary>
         /// A List<TensorInt> overload for Cat().
         /// </summary>
-        public static TensorInt Cat(this Ops ops, List<TensorInt> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis) as TensorInt;
+        public static Tensor<int> Cat(this Ops ops, List<Tensor<int>> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as Tensor<int>;
         }
 
         /// <summary>
@@ -93,15 +93,15 @@ namespace Doji.AI {
         /// <summary>
         /// A List<TensorFloat> overload for Concatenate().
         /// </summary>
-        public static TensorFloat Concatenate(this Ops ops, List<TensorFloat> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis) as TensorFloat;
+        public static Tensor<float> Concatenate(this Ops ops, List<Tensor<float>> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as Tensor<float>;
         }
 
         /// <summary>
         /// A List<TensorFloat> overload for Concatenate().
         /// </summary>
-        public static TensorInt Concatenate(this Ops ops, List<TensorInt> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis) as TensorInt;
+        public static Tensor<int> Concatenate(this Ops ops, List<Tensor<int>> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as Tensor<int>;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Doji.AI {
         /// <summary>
         /// Similar to torch.repeat_interleave() or numpy.repeat()
         /// </summary>
-        /*public static Tensor<float> RepeatInterleave(this Ops ops, Tensor<float> tensor, int repeats, int dim) {
+        public static Tensor<float> RepeatInterleave(this Ops ops, Tensor<float> tensor, int repeats, int dim) {
             if (repeats <= 0) {
                 throw new ArgumentException($"Repeat count must be greater than zero, was {repeats}.", nameof(repeats));
             }
@@ -178,7 +178,7 @@ namespace Doji.AI {
             var transpose = ops.Transpose(repeat, new int[] { 1, 0 });
             transpose.Reshape(flatShape);
             return transpose;
-        }*/
+        }
 
         /// <summary>
         /// Alias for <see cref="Ops.Split{T}(T, int, int, int)"/> to match the

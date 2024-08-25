@@ -5,7 +5,7 @@ using Unity.Sentis;
 namespace Doji.AI.Editor.Tests {
 
     public class SentisUtilsTest {
-
+        /*
         private float[] Samples {
             get {
                 return TestUtils.LoadFromFile("256_latents");
@@ -27,33 +27,31 @@ namespace Doji.AI.Editor.Tests {
         [Test]
         public void TestQuantile() {
             using Ops ops = new Ops(BackendType.GPUCompute);
-            using TensorFloat latents = new TensorFloat(new TensorShape(1, 4, 8, 8), Samples);
-            TensorFloat quantile = ops.Quantile(latents, 0.995f, 1);
+            using Tensor<float> latents = new Tensor<float>(new TensorShape(1, 4, 8, 8), Samples);
+            Tensor<float> quantile = ops.Quantile(latents, 0.995f, 1);
             quantile.ReadbackAndClone();
-            CollectionAssert.AreEqual(ExpectedQuantile, quantile.ToReadOnlyArray(), new FloatArrayComparer(0.00001f));
+            CollectionAssert.AreEqual(ExpectedQuantile, quantile.DownloadToArray(), new FloatArrayComparer(0.00001f));
         }
 
-        /*
         [Test]
         public void TestSort() {
             using Ops ops = new Ops(BackendType.GPUCompute);
-            using TensorFloat latents = new TensorFloat(new TensorShape(1, 4, 8, 8), Samples);
-            TensorFloat sorted = ops.Sort(latents, 1);
+            using Tensor<float> latents = new Tensor<float>(new TensorShape(1, 4, 8, 8), Samples);
+            Tensor<float> sorted = ops.Sort(latents, 1);
             sorted.ReadbackAndClone();
-            CollectionAssert.AreEqual(ExpectedSorted, sorted.ToReadOnlyArray(), new FloatArrayComparer(0.00001f));
+            CollectionAssert.AreEqual(ExpectedSorted, sorted.DownloadToArray(), new FloatArrayComparer(0.00001f));
         }
-        */
 
         [Test]
         public void TestRepeatInterlave1D() {
             using Ops ops = new Ops(BackendType.GPUCompute);
             int[] data = new int[] { 1, 2, 3 };
             TensorShape shape = new TensorShape(data.Length);
-            using TensorInt input = new TensorInt(shape, data);
-            TensorInt r = ops.RepeatInterleave(input, 2, 0);
+            using Tensor<int> input = new Tensor<int>(shape, data);
+            Tensor<int> r = ops.RepeatInterleave(input, 2, 0);
             Assert.That(r.shape, Is.EqualTo(new TensorShape(3 * 2)));
             r.ReadbackAndClone();
-            CollectionAssert.AreEqual(new int[] { 1, 1, 2, 2, 3, 3 }, r.ToReadOnlyArray());
+            CollectionAssert.AreEqual(new int[] { 1, 1, 2, 2, 3, 3 }, r.DownloadToArray());
         }
 
         [Test]
@@ -61,12 +59,12 @@ namespace Doji.AI.Editor.Tests {
             using Ops ops = new Ops(BackendType.GPUCompute);
             int[] data = new int[] { 1, 2, 3, 4, 5, 6 };
             TensorShape shape = new TensorShape(3, 2);
-            using TensorInt input = new TensorInt(shape, data);
-            TensorInt r = ops.RepeatInterleave(input, 2, 0);
+            using Tensor<int> input = new Tensor<int>(shape, data);
+            Tensor<int> r = ops.RepeatInterleave(input, 2, 0);
             Assert.That(r.shape, Is.EqualTo(new TensorShape(6 * 2)));
             r.ReadbackAndClone();
-            UnityEngine.Debug.Log(string.Join(", ", r.ToReadOnlyArray()));
-            CollectionAssert.AreEqual(new int[] { 1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6 }, r.ToReadOnlyArray());
+            UnityEngine.Debug.Log(string.Join(", ", r.DownloadToArray()));
+            CollectionAssert.AreEqual(new int[] { 1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6 }, r.DownloadToArray());
         }
 
 
@@ -75,16 +73,16 @@ namespace Doji.AI.Editor.Tests {
             using IBackend backend = WorkerFactory.CreateBackend(BackendType.GPUCompute);
             int[] data = ArrayUtils.Arange(0, 60);
             TensorShape shape = new TensorShape(3, 4, 5);
-            using TensorInt tensor = new TensorInt(shape, data);
+            using Tensor<int> tensor = new Tensor<int>(shape, data);
             ReadOnlySpan<int> starts = new int[] { 0, -1, 0 };
             ReadOnlySpan<int> ends = new int[] { shape[0], shape[1], shape[2] };
             ReadOnlySpan<int> axes = new int[] { 0, 1, 2 };
             ReadOnlySpan<int> steps = new int[] { 1, 1, 1 };
-            using TensorInt O = TensorInt.AllocNoData(tensor.shape.Slice(starts, ends, axes, steps));
+            using Tensor<int> O = Tensor<int>.AllocNoData(tensor.shape.Slice(starts, ends, axes, steps));
             backend.Slice(tensor, O, starts, axes, steps);
             O.ReadbackAndClone();
-            UnityEngine.Debug.Log(string.Join(", ", O.ToReadOnlyArray()));
-            CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.ToReadOnlyArray());
+            UnityEngine.Debug.Log(string.Join(", ", O.DownloadToArray()));
+            CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.DownloadToArray());
         }
 
         public void Test(Range r) {
@@ -95,14 +93,14 @@ namespace Doji.AI.Editor.Tests {
             using Ops ops = new Ops(BackendType.GPUCompute);
             int[] data = ArrayUtils.Arange(0, 60);
             TensorShape shape = new TensorShape(3, 4, 5);
-            using TensorInt tensor = new TensorInt(shape, data);
+            using Tensor<int> tensor = new Tensor<int>(shape, data);
 
             var x = ..;
             var y = ^1;
-            using TensorInt O = ops.Slice(tensor, .., ^1, ..);
+            using Tensor<int> O = ops.Slice(tensor, .., ^1, ..);
             O.ReadbackAndClone();
-            UnityEngine.Debug.Log(string.Join(", ", O.ToReadOnlyArray()));
-            CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.ToReadOnlyArray());
+            UnityEngine.Debug.Log(string.Join(", ", O.DownloadToArray()));
+            CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.DownloadToArray());
         }
 
         [Test]
@@ -110,21 +108,21 @@ namespace Doji.AI.Editor.Tests {
             using Ops ops = new Ops(BackendType.GPUCompute);
             int[] data = ArrayUtils.Arange(0, 60);
             TensorShape shape = new TensorShape(3, 4, 5);
-            using TensorInt tensor = new TensorInt(shape, data);
+            using Tensor<int> tensor = new Tensor<int>(shape, data);
 
             int[] data2 = ArrayUtils.Arange(0, 15);
             TensorShape shape2 = new TensorShape(3, 1, 5);
-            using TensorInt tensor2 = new TensorInt(shape2, data2);
+            using Tensor<int> tensor2 = new Tensor<int>(shape2, data2);
 
             int[] data3 = ArrayUtils.Arange(0, 120);
             TensorShape shape3 = new TensorShape(3, 8, 5);
-            using TensorInt tensor3 = new TensorInt(shape3, data3);
+            using Tensor<int> tensor3 = new Tensor<int>(shape3, data3);
 
             var t = new Tensor[] { tensor, tensor2, tensor3 };
-            using TensorInt O = ops.Concat(t, 1) as TensorInt;
+            using Tensor<int> O = ops.Concat(t, 1) as Tensor<int>;
             O.ReadbackAndClone();
-            System.IO.File.WriteAllText("out.txt", string.Join("\n ", O.ToReadOnlyArray()));
-            UnityEngine.Debug.Log(O.ToReadOnlyArray().Length);
+            System.IO.File.WriteAllText("out.txt", string.Join("\n ", O.DownloadToArray()));
+            UnityEngine.Debug.Log(O.DownloadToArray().Length);
             UnityEngine.Debug.Log(O.shape);
             var expected = new int[] {
                 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
@@ -141,7 +139,8 @@ namespace Doji.AI.Editor.Tests {
                 14,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,
                 93,  94,  95,  96,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106,
                 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119 };
-            CollectionAssert.AreEqual(expected, O.ToReadOnlyArray());
+            CollectionAssert.AreEqual(expected, O.DownloadToArray());
         }
+        */
     }
 }

@@ -70,25 +70,11 @@ namespace Doji.AI {
             return AllocNoData(dataType, shape);
         }
 
-        internal Tensor<T> AllocNoData<T>(TensorShape shape) where T : unmanaged {
+        public Tensor<T> AllocNoData<T>(TensorShape shape) where T : unmanaged {
             var tensor = new Tensor<T>(shape, null);
             AddToPool(tensor);
             return tensor;
         }
-
-        /*public T AllocNoData<T>(TensorShape shape) where T : Tensor {
-            switch (typeof(T)) {
-                case Type floatType when floatType == typeof(Tensor<float>):
-                    return AllocNoData<float>(shape) as T;
-                case Type intType when intType == typeof(Tensor<int>):
-                    return AllocNoData<int>(shape) as T;
-                case Type shortType when shortType == typeof(TensorShort):
-                case Type byteType when byteType == typeof(TensorByte):
-                    throw new NotImplementedException();
-                default:
-                    throw new ArgumentException($"Invalid data type '{typeof(T)}'");
-            }
-        }*/
 
         internal Tensor<T> AllocZeros<T>(TensorShape shape) where T : unmanaged {
             var tensor = new Tensor<T>(shape);
@@ -108,6 +94,10 @@ namespace Doji.AI {
             return tensor;
         }
 
+        public Tensor<T> Zeros<T>(TensorShape shape) where T : unmanaged {
+            return AllocZeros<T>(shape);
+        }
+
         public Tensor Ones(TensorShape shape, DataType type) {
             return type switch {
                 DataType.Float => NewTensor<float>(shape, OnesF(shape.length)),
@@ -117,31 +107,18 @@ namespace Doji.AI {
             };
         }
 
-        public T Ones<T>(TensorShape shape) where T : Tensor {
+        public Tensor<T> Ones<T>(TensorShape shape) where T : unmanaged {
             switch (typeof(T)) {
-                case Type floatType when floatType == typeof(Tensor<float>):
-                    return NewTensor<float>(shape, OnesF(shape.length)) as T;
-                case Type intType when intType == typeof(Tensor<int>):
-                    return NewTensor<int>(shape, OnesI(shape.length)) as T;
+                case Type floatType when floatType == typeof(float):
+                    return NewTensor<float>(shape, OnesF(shape.length)) as Tensor<T>;
+                case Type intType when intType == typeof(int):
+                    return NewTensor<int>(shape, OnesI(shape.length)) as Tensor<T>;
                 case Type shortType when shortType == typeof(short):
                 case Type byteType when byteType == typeof(byte):
                     throw new NotImplementedException();
                 default:
                     throw new ArgumentException($"Invalid tensor data type '{typeof(T)}'");
             }
-        }
-
-        public Tensor Zeros(TensorShape shape, DataType type) {
-            return type switch {
-                DataType.Float => AllocZeros<float>(shape),
-                DataType.Int => AllocZeros<int>(shape),
-                DataType.Short or DataType.Byte => throw new NotImplementedException(),
-                _ => throw new ArgumentException($"Invalid tensor data type '{type}'"),
-            };
-        }
-
-        public Tensor<T> Zeros<T>(TensorShape shape) where T : unmanaged {
-            return AllocZeros<T>(shape);
         }
 
         private static int[] OnesI(int num) {
@@ -452,8 +429,8 @@ namespace Doji.AI {
             return O;
         }
 
-        /*public T Transpose<T>(T X) where T : Tensor {
-            var O = AllocNoData(X.shape.Transpose(), X.dataType) as T;
+        public T Transpose<T>(T X) where T : Tensor {
+            var O = AllocNoData(X.shape.Transpose(null), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
             //_backend.Transpose(X, O);
@@ -466,7 +443,7 @@ namespace Doji.AI {
                 return O;
             //_backend.Transpose(X, O, permutations);
             return O;
-        }*/
+        }
 
         public Tensor Concat(Tensor[] tensors, int axis) {
             var O = AllocNoData(TensorShapeHelper.ConcatShape(tensors, axis), tensors[0].dataType);
