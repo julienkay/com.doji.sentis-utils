@@ -63,17 +63,45 @@ namespace Doji.AI {
         }
 
         /// <summary>
-        /// A List<Tensor> overload for Concat().
+        /// A List<Tensor> overload for Cat().
         /// </summary>
-        public static Tensor Cat(this Ops ops, List<Tensor> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis);
+        public static T Cat<T>(this Ops ops, List<T> tensors, int axis = 0) where T : Tensor {
+            return ops.Concat(tensors, axis) as T;
         }
 
         /// <summary>
-        /// A List<Tensor> overload for Concat().
+        /// A List<TensorFloat> overload for Cat().
         /// </summary>
-        public static Tensor Concatenate(this Ops ops, List<Tensor> tensors, int axis = 0) {
-            return ops.Concat(tensors, axis);
+        public static TensorFloat Cat(this Ops ops, List<TensorFloat> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as TensorFloat;
+        }
+
+        /// <summary>
+        /// A List<TensorInt> overload for Cat().
+        /// </summary>
+        public static TensorInt Cat(this Ops ops, List<TensorInt> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as TensorInt;
+        }
+
+        /// <summary>
+        /// A List<Tensor> overload for Concatenate().
+        /// </summary>
+        public static T Concatenate<T>(this Ops ops, List<Tensor> tensors, int axis = 0) where T : Tensor {
+            return ops.Concat(tensors, axis) as T;
+        }
+
+        /// <summary>
+        /// A List<TensorFloat> overload for Concatenate().
+        /// </summary>
+        public static TensorFloat Concatenate(this Ops ops, List<TensorFloat> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as TensorFloat;
+        }
+
+        /// <summary>
+        /// A List<TensorFloat> overload for Concatenate().
+        /// </summary>
+        public static TensorInt Concatenate(this Ops ops, List<TensorInt> tensors, int axis = 0) {
+            return ops.Concat(tensors, axis) as TensorInt;
         }
 
         /// <summary>

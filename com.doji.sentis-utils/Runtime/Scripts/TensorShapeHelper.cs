@@ -8,7 +8,7 @@ namespace Doji.AI {
 
     internal static class TensorShapeHelper {
 
-        public static TensorShape ConcatShape(Tensor[] tensors, int axis) {
+        public static TensorShape ConcatShape<T>(T[] tensors, int axis) where T : Tensor {
             TensorShape output = tensors[0].shape;
 
             for (int i = 1; i < tensors.Length; ++i) {
@@ -19,7 +19,7 @@ namespace Doji.AI {
             return output;
         }
 
-        public static TensorShape ConcatShape(List<Tensor> tensors, int axis) {
+        public static TensorShape ConcatShape<T>(List<T> tensors, int axis) where T : Tensor {
             TensorShape output = tensors[0].shape;
 
             for (int i = 1; i < tensors.Count; ++i) {

@@ -480,7 +480,7 @@ namespace Doji.AI {
             return O;
         }
 
-        public Tensor Concat(List<Tensor> tensors, int axis) {
+        public Tensor Concat<T>(List<T> tensors, int axis) where T : Tensor {
             var O = AllocNoData(TensorShapeHelper.ConcatShape(tensors, axis), tensors[0].dataType);
             if (O.shape.HasZeroDims())
                 return O;
