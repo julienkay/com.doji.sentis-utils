@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Sentis;
@@ -24,14 +25,36 @@ namespace Doji.AI {
         }
 
         protected override object Invoke(MethodInfo targetMethod, object[] args) {
-            Type[] parameterTypes = args.Select(arg => arg.GetType()).ToArray();
+            // Prepare to match parameter types
+            Type[] parameterTypes = targetMethod.GetParameters()
+                                                .Select(param => param.ParameterType)
+                                                .ToArray();
+
+            // Transform args to match the expected parameter types
+            for (int i = 0; i < args.Length; i++) {
+                if (parameterTypes[i].IsByRefLike && parameterTypes[i].IsGenericType &&
+                    parameterTypes[i].GetGenericTypeDefinition() == typeof(ReadOnlySpan<>)) {
+                    // Convert the argument to ReadOnlySpan<T>
+                    var spanType = parameterTypes[i];
+                    var elementType = spanType.GetGenericArguments()[0];
+                    Array array = Array.CreateInstance(elementType, ((Array)args[i]).Length);
+
+                    for (int j = 0; j < ((Array)args[i]).Length; j++) {
+                        array.SetValue(((Array)args[i]).GetValue(j), j);
+                    }
+
+                    args[i] = Activator.CreateInstance(spanType, array);
+                }
+            }
 
             // Map methods from our IBackend to Sentis' internal IBackend methods
             var correspondingMethod = _type.GetMethod(targetMethod.Name, parameterTypes);
+
             if (correspondingMethod != null) {
                 return correspondingMethod.Invoke(_backendInstance, args);
             }
-            throw new NotImplementedException($"Method {targetMethod.Name} is not implemented.");
+
+            throw new NotImplementedException($"Method {targetMethod.Name} with the specified parameters is not implemented.");
         }
 
         private static object CreateBackend(BackendType backend) {

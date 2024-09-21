@@ -144,7 +144,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Max(Tensor<float> tensor1, Tensor<float> tensor2) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
+            var O = AllocNoData<float>(BroadcastShape(tensor1, tensor2));
             if (O.shape.HasZeroDims()) {
                 return O;
             }
@@ -166,7 +166,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Min(Tensor<float> tensor1, Tensor<float> tensor2) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(tensor1, tensor2));
+            var O = AllocNoData<float>(BroadcastShape(tensor1, tensor2));
             if (O.shape.HasZeroDims()) {
                 return O;
             }
@@ -231,7 +231,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Mul(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<float>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Mul(A, B, O);
@@ -239,7 +239,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Mul(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Mul(A, B, O);
@@ -279,7 +279,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Sub(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<float>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Sub(A, B, O);
@@ -303,7 +303,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Sub(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Sub(A, B, O);
@@ -319,7 +319,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Add(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<float>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Add(A, B, O);
@@ -334,7 +334,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Add(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Add(A, B, O);
@@ -350,7 +350,7 @@ namespace Doji.AI {
         }
 
         public Tensor<float> Div(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<float>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Div(A, B, O);
@@ -456,7 +456,7 @@ namespace Doji.AI {
         }
 
         public Tensor Concat(Tensor[] tensors, int axis) {
-            var O = AllocNoData(TensorShapeHelper.ConcatShape(tensors, axis), tensors[0].dataType);
+            var O = AllocNoData(ConcatShape(tensors, axis), tensors[0].dataType);
             if (O.shape.HasZeroDims())
                 return O;
             int start = 0;
@@ -468,7 +468,7 @@ namespace Doji.AI {
         }
 
         public Tensor Concat<T>(List<T> tensors, int axis) where T : Tensor {
-            var O = AllocNoData(TensorShapeHelper.ConcatShape(tensors, axis), tensors[0].dataType);
+            var O = AllocNoData(ConcatShape(tensors, axis), tensors[0].dataType);
             if (O.shape.HasZeroDims())
                 return O;
             int start = 0;
@@ -483,7 +483,7 @@ namespace Doji.AI {
         }
 
         public T Concat<T>(T tensor1, T tensor2, int axis) where T : Tensor {
-            var O = AllocNoData(TensorShapeHelper.ConcatShape(tensor1, tensor2, axis), tensor1.dataType) as T;
+            var O = AllocNoData(ConcatShape(tensor1, tensor2, axis), tensor1.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
 
@@ -605,7 +605,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Greater(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Greater(A, B, O);
@@ -613,7 +613,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Greater(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Greater(A, B, O);
@@ -621,7 +621,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> GreaterOrEqual(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.GreaterOrEqual(A, B, O);
@@ -629,7 +629,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> GreaterOrEqual(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.GreaterOrEqual(A, B, O);
@@ -637,7 +637,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Less(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Less(A, B, O);
@@ -645,7 +645,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Less(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Less(A, B, O);
@@ -653,7 +653,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> LessOrEqual(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.LessOrEqual(A, B, O);
@@ -661,7 +661,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> LessOrEqual(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.LessOrEqual(A, B, O);
@@ -669,7 +669,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Equal(Tensor<float> A, Tensor<float> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Equal(A, B, O);
@@ -677,7 +677,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Equal(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Equal(A, B, O);
@@ -685,7 +685,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Or(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Or(A, B, O);
@@ -693,7 +693,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> And(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.And(A, B, O);
@@ -701,7 +701,7 @@ namespace Doji.AI {
         }
 
         public Tensor<int> Xor(Tensor<int> A, Tensor<int> B) {
-            var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
+            var O = AllocNoData<int>(BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Xor(A, B, O);
