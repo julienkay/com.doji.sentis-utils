@@ -48,5 +48,13 @@ namespace Doji.AI {
             TensorShape result = (TensorShape)splitMethod.Invoke(shape, parameters);
             return result;
         }
+
+        public static TensorShape Reduce(this TensorShape shape, ReadOnlySpan<int> axes, bool keepDim = true) {
+            Type tensorShapeType = typeof(TensorShape);
+            MethodInfo splitMethod = tensorShapeType.GetMethod("Reduce", BindingFlags.NonPublic | BindingFlags.Instance);
+            object[] parameters = { axes.ToArray(), keepDim };
+            TensorShape result = (TensorShape)splitMethod.Invoke(shape, parameters);
+            return result;
+        }
     }
 }

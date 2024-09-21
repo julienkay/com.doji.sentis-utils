@@ -7,12 +7,15 @@ namespace Doji.AI {
 
     public class Ops : IDisposable {
 
-        public BackendType backendType { get; private set; }
+        public BackendType BackendType { get; private set; }
+        
+        internal IBackend _backend;
 
         private readonly HashSet<Tensor> _pool = new HashSet<Tensor>();
 
-        public Ops(BackendType backend) {
-            backendType = backend;
+        public Ops(BackendType backendType) {
+            BackendType = backendType;
+            _backend = BackendProxy.Create(backendType);
         }
 
         public void Dispose() {
@@ -138,7 +141,7 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            //_backend.Max(tensor1, tensor2, O);
+            _backend.Max(tensor1, tensor2, O);
             return O;
         }
 
@@ -160,63 +163,63 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            //_backend.Min(tensor1, tensor2, O);
+            _backend.Min(tensor1, tensor2, O);
             return O;
         }
 
-        public Tensor<float> ReduceMax(Tensor<float> X, int axis) {
-            var O = AllocNoData<float>(X.shape.Reduce(axis));
+        public Tensor<float> ReduceMax(Tensor<float> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceMax(X, O, axis);
+            _backend.ReduceMax(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceMax(Tensor<int> X, int axis) {
-            var O = AllocNoData<int>(X.shape.Reduce(axis));
+        public Tensor<int> ReduceMax(Tensor<int> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceMax(X, O, axis);
+            _backend.ReduceMax(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceMean(Tensor<float> X, int axis) {
-            var O = AllocNoData<float>(X.shape.Reduce(axis));
+        public Tensor<float> ReduceMean(Tensor<float> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceMean(X, O, axis);
+            _backend.ReduceMean(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceMin(Tensor<float> X, int axis) {
-            var O = AllocNoData<float>(X.shape.Reduce(axis));
+        public Tensor<float> ReduceMin(Tensor<float> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceMin(X, O, axis);
+            _backend.ReduceMin(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceMin(Tensor<int> X, int axis) {
-            var O =AllocNoData<int>(X.shape.Reduce(axis));
+        public Tensor<int> ReduceMin(Tensor<int> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceMin(X, O, axis);
+            _backend.ReduceMin(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceSum(Tensor<float> X, int axis) {
-            var O = AllocNoData<float>(X.shape.Reduce(axis));
+        public Tensor<float> ReduceSum(Tensor<float> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceSum(X, O, axis);
+            _backend.ReduceSum(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceSum(Tensor<int> X, int axis) {
-            var O = AllocNoData<int>(X.shape.Reduce(axis));
+        public Tensor<int> ReduceSum(Tensor<int> X, ReadOnlySpan<int> axes) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ReduceSum(X, O, axis);
+            _backend.ReduceSum(X, O, axes);
             return O;
         }
 
@@ -224,7 +227,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Mul(A, B, O);
+            _backend.Mul(A, B, O);
             return O;
         }
 
@@ -232,7 +235,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Mul(A, B, O);
+            _backend.Mul(A, B, O);
             return O;
         }
 
@@ -240,7 +243,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, b, 0);
+            _backend.ScalarMad(A, O, b, 0);
             return O;
         }
 
@@ -248,7 +251,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(B, O, a, 0);
+            _backend.ScalarMad(B, O, a, 0);
             return O;
         }
 
@@ -256,7 +259,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, 1, -b);
+            _backend.ScalarMad(A, O, 1, -b);
             return O;
         }
 
@@ -264,7 +267,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(B, O, -1, a);
+            _backend.ScalarMad(B, O, -1, a);
             return O;
         }
 
@@ -272,7 +275,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Sub(A, B, O);
+            _backend.Sub(A, B, O);
             return O;
         }
 
@@ -280,7 +283,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, 1, -b);
+            _backend.ScalarMad(A, O, 1, -b);
             return O;
         }
 
@@ -288,7 +291,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(B.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(B, O, -1, a);
+            _backend.ScalarMad(B, O, -1, a);
             return O;
         }
 
@@ -296,7 +299,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Sub(A, B, O);
+            _backend.Sub(A, B, O);
             return O;
         }
 
@@ -304,7 +307,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, 1, b);
+            _backend.ScalarMad(A, O, 1, b);
             return O;
         }
 
@@ -312,14 +315,14 @@ namespace Doji.AI {
             var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Add(A, B, O);
+            _backend.Add(A, B, O);
             return O;
         }
         public Tensor<int> Add(Tensor<int> A, int b) {
             var O = AllocNoData<int>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, 1, b);
+            _backend.ScalarMad(A, O, 1, b);
             return O;
         }
 
@@ -327,7 +330,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Add(A, B, O);
+            _backend.Add(A, B, O);
             return O;
         }
 
@@ -335,7 +338,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(A.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ScalarMad(A, O, 1 / b, 0);
+            _backend.ScalarMad(A, O, 1 / b, 0);
             return O;
         }
 
@@ -343,7 +346,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Div(A, B, O);
+            _backend.Div(A, B, O);
             return O;
         }
 
@@ -351,7 +354,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Sqrt(X, O);
+            _backend.Sqrt(X, O);
             return O;
         }
 
@@ -359,7 +362,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Clip(X, O, min, max);
+            _backend.Clip(X, O, min, max);
             return O;
         }
 
@@ -368,7 +371,7 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            //_backend.Clip(X, O, min, max);
+            _backend.Clip(X, O, min, max);
             return O;
         }
 
@@ -377,7 +380,7 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims()) {
                 return O;
             }
-            //_backend.ScalarMad(X, O, s, b);
+            _backend.ScalarMad(X, O, s, b);
             return O;
         }
 
@@ -385,7 +388,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Abs(X, O);
+            _backend.Abs(X, O);
             return O;
         }
 
@@ -393,7 +396,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(S);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.RandomNormal(O, mean, scale, seed);
+            _backend.RandomNormal(O, mean, scale, seed);
             return O;
         }
 
@@ -401,7 +404,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(S);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.RandomNormal(O, mean, scale, unchecked((int)seed));
+            _backend.RandomNormal(O, mean, scale, unchecked((int)seed));
             return O;
         }
 
@@ -409,7 +412,7 @@ namespace Doji.AI {
             var O = AllocNoData(A.shape.Broadcast(B.shape.Broadcast(C.shape)), A.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Where(C, A, B, O);
+            _backend.Where(C, A, B, O);
             return O;
         }
 
@@ -417,7 +420,7 @@ namespace Doji.AI {
             var O = AllocNoData(shape, X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Reshape(X, O);
+            _backend.Reshape(X, O);
             return O;
         }
 
@@ -425,7 +428,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Broadcast(shape), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Expand(X, O);
+            _backend.Expand(X, O);
             return O;
         }
 
@@ -433,7 +436,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Transpose(null), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Transpose(X, O);
+            _backend.Transpose(X, O);
             return O;
         }
 
@@ -441,7 +444,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Transpose(permutations), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Transpose(X, O, permutations);
+            _backend.Transpose(X, O, permutations);
             return O;
         }
 
@@ -451,7 +454,7 @@ namespace Doji.AI {
                 return O;
             int start = 0;
             foreach (var tensor in tensors) {
-                //_backend.SliceSet(tensor, O, axis, start, 1);
+                _backend.SliceSet(tensor, O, axis, start, 1);
                 start += tensor.shape[axis];
             }
             return O;
@@ -466,7 +469,7 @@ namespace Doji.AI {
                 int length = tensor.shape[axis];
                 if (length == 0)
                     continue;
-                //_backend.SliceSet(tensor, O, axis, start, 1);
+                _backend.SliceSet(tensor, O, axis, start, 1);
                 start += length;
             }
             return O;
@@ -477,8 +480,8 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims())
                 return O;
 
-            //_backend.SliceSet(tensor1, O, axis, 0, 1);
-            //_backend.SliceSet(tensor2, O, axis, tensor1.shape[axis], 1);
+            _backend.SliceSet(tensor1, O, axis, 0, 1);
+            _backend.SliceSet(tensor2, O, axis, tensor1.shape[axis], 1);
             return O;
         }
 
@@ -486,7 +489,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Split(axis, start, end), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Split(X, O, axis, start);
+            _backend.Split(X, O, axis, start);
             return O;
         }
 
@@ -494,7 +497,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Slice(starts, ends, axes, steps), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Slice(X, O, starts, axes, steps);
+            _backend.Slice(X, O, starts, axes, steps);
             return O;
         }
 
@@ -502,7 +505,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Softmax(X, O, axis);
+            _backend.Softmax(X, O, axis);
             return O;
         }
 
@@ -510,7 +513,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
+            _backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
             return O;
         }
 
@@ -518,7 +521,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
+            _backend.CumSum(X, O, axis, reverse: reverse, exclusive: exclusive);
             return O;
         }
 
@@ -526,7 +529,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Neg(X, O);
+            _backend.Neg(X, O);
             return O;
         }
 
@@ -534,7 +537,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Neg(X, O);
+            _backend.Neg(X, O);
             return O;
         }
 
@@ -542,7 +545,7 @@ namespace Doji.AI {
             var O = AllocNoData(X.shape.Tile(repeats), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Tile(X, O, repeats);
+            _backend.Tile(X, O, repeats);
             return O;
         }
 
@@ -550,7 +553,7 @@ namespace Doji.AI {
             var O = AllocNoData(ShapeInference.Gather(X.shape, indices.shape, axis), X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Gather(X, indices, O, axis);
+            _backend.Gather(X, indices, O, axis);
             return O;
         }
 
@@ -558,7 +561,7 @@ namespace Doji.AI {
             var O = AllocNoData(indices.shape, X.dataType) as T;
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.GatherElements(X, indices, O, axis);
+            _backend.GatherElements(X, indices, O, axis);
             return O;
         }
 
@@ -566,7 +569,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ArgMax(X, O, axis, selectLastIndex);
+            _backend.ArgMax(X, O, axis, selectLastIndex);
             return O;
         }
 
@@ -574,7 +577,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ArgMax(X, O, axis, selectLastIndex);
+            _backend.ArgMax(X, O, axis, selectLastIndex);
             return O;
         }
 
@@ -582,7 +585,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape.Reduce(axis));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ArgMin(X, O, axis, selectLastIndex);
+            _backend.ArgMin(X, O, axis, selectLastIndex);
             return O;
         }
 
@@ -590,7 +593,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape.Reduce(axis, keepdim));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.ArgMin(X, O, axis, selectLastIndex);
+            _backend.ArgMin(X, O, axis, selectLastIndex);
             return O;
         }
 
@@ -598,7 +601,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Greater(A, B, O);
+            _backend.Greater(A, B, O);
             return O;
         }
 
@@ -606,7 +609,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Greater(A, B, O);
+            _backend.Greater(A, B, O);
             return O;
         }
 
@@ -614,7 +617,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.GreaterOrEqual(A, B, O);
+            _backend.GreaterOrEqual(A, B, O);
             return O;
         }
 
@@ -622,7 +625,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.GreaterOrEqual(A, B, O);
+            _backend.GreaterOrEqual(A, B, O);
             return O;
         }
 
@@ -630,7 +633,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Less(A, B, O);
+            _backend.Less(A, B, O);
             return O;
         }
 
@@ -638,7 +641,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Less(A, B, O);
+            _backend.Less(A, B, O);
             return O;
         }
 
@@ -646,7 +649,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.LessOrEqual(A, B, O);
+            _backend.LessOrEqual(A, B, O);
             return O;
         }
 
@@ -654,7 +657,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.LessOrEqual(A, B, O);
+            _backend.LessOrEqual(A, B, O);
             return O;
         }
 
@@ -662,7 +665,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Equal(A, B, O);
+            _backend.Equal(A, B, O);
             return O;
         }
 
@@ -670,7 +673,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Equal(A, B, O);
+            _backend.Equal(A, B, O);
             return O;
         }
 
@@ -678,7 +681,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Or(A, B, O);
+            _backend.Or(A, B, O);
             return O;
         }
 
@@ -686,7 +689,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.And(A, B, O);
+            _backend.And(A, B, O);
             return O;
         }
 
@@ -694,7 +697,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(TensorShapeHelper.BroadcastShape(A, B));
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Xor(A, B, O);
+            _backend.Xor(A, B, O);
             return O;
         }
 
@@ -702,7 +705,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Not(X, O);
+            _backend.Not(X, O);
             return O;
         }
 
@@ -710,7 +713,7 @@ namespace Doji.AI {
             var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Cast(X, O);
+            _backend.Cast(X, O);
             return O;
         }
 
@@ -718,7 +721,7 @@ namespace Doji.AI {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
-            //_backend.Cast(X, O);
+            _backend.Cast(X, O);
             return O;
         }
 
@@ -730,13 +733,13 @@ namespace Doji.AI {
             var indices = AllocNoData<int>(outputShape);
 
             //if (!outputShape.HasZeroDims())
-                //_backend.TopK(X, values, indices, k, axis, largest);
+                _backend.TopK(X, values, indices, k, axis, largest);
             return (values, indices);
         }
 
         public Tensor<float> Copy(Tensor tensor) {
             var copy = AllocNoData<float>(tensor.shape);
-            //_backend.MemCopy(tensor, copy);
+            _backend.MemCopy(tensor, copy);
             return copy;
         }
     }
