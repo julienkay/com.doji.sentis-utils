@@ -24,8 +24,8 @@ namespace Doji.AI {
 
             float index = (tensor.shape[dim] - 1) * q;
 
-            using Tensor<int> lowerIndex = new Tensor<int>(new TensorShape(), new int[] { (int)MathF.Floor(index) } );
-            using Tensor<int> upperIndex = new Tensor<int>(new TensorShape(), new int[] { (int)MathF.Ceiling(index) } );
+            Tensor<int> lowerIndex = ops.NewTensor((int)MathF.Floor(index));
+            Tensor<int> upperIndex = ops.NewTensor((int)MathF.Ceiling(index));
 
             Tensor<float> lowerValues = ops.Gather(sorted, lowerIndex, dim);
             Tensor<float> upperValues = ops.Gather(sorted, upperIndex, dim);

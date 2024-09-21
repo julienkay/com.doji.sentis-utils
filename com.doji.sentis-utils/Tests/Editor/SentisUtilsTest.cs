@@ -5,7 +5,7 @@ using Unity.Sentis;
 namespace Doji.AI.Editor.Tests {
 
     public class SentisUtilsTest {
-        /*
+        
         private float[] Samples {
             get {
                 return TestUtils.LoadFromFile("256_latents");
@@ -29,6 +29,7 @@ namespace Doji.AI.Editor.Tests {
             using Ops ops = new Ops(BackendType.GPUCompute);
             using Tensor<float> latents = new Tensor<float>(new TensorShape(1, 4, 8, 8), Samples);
             Tensor<float> quantile = ops.Quantile(latents, 0.995f, 1);
+            ops.ExecuteCommandBufferAndClear();
             quantile.ReadbackAndClone();
             CollectionAssert.AreEqual(ExpectedQuantile, quantile.DownloadToArray(), new FloatArrayComparer(0.00001f));
         }
@@ -38,6 +39,7 @@ namespace Doji.AI.Editor.Tests {
             using Ops ops = new Ops(BackendType.GPUCompute);
             using Tensor<float> latents = new Tensor<float>(new TensorShape(1, 4, 8, 8), Samples);
             Tensor<float> sorted = ops.Sort(latents, 1);
+            ops.ExecuteCommandBufferAndClear();
             sorted.ReadbackAndClone();
             CollectionAssert.AreEqual(ExpectedSorted, sorted.DownloadToArray(), new FloatArrayComparer(0.00001f));
         }
@@ -49,6 +51,7 @@ namespace Doji.AI.Editor.Tests {
             TensorShape shape = new TensorShape(data.Length);
             using Tensor<int> input = new Tensor<int>(shape, data);
             Tensor<int> r = ops.RepeatInterleave(input, 2, 0);
+            ops.ExecuteCommandBufferAndClear();
             Assert.That(r.shape, Is.EqualTo(new TensorShape(3 * 2)));
             r.ReadbackAndClone();
             CollectionAssert.AreEqual(new int[] { 1, 1, 2, 2, 3, 3 }, r.DownloadToArray());
@@ -61,13 +64,14 @@ namespace Doji.AI.Editor.Tests {
             TensorShape shape = new TensorShape(3, 2);
             using Tensor<int> input = new Tensor<int>(shape, data);
             Tensor<int> r = ops.RepeatInterleave(input, 2, 0);
+            ops.ExecuteCommandBufferAndClear();
             Assert.That(r.shape, Is.EqualTo(new TensorShape(6 * 2)));
             r.ReadbackAndClone();
             UnityEngine.Debug.Log(string.Join(", ", r.DownloadToArray()));
             CollectionAssert.AreEqual(new int[] { 1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6 }, r.DownloadToArray());
         }
 
-
+        /*
         [Test]
         public void TestSlicing() {
             using IBackend backend = WorkerFactory.CreateBackend(BackendType.GPUCompute);
@@ -84,10 +88,8 @@ namespace Doji.AI.Editor.Tests {
             UnityEngine.Debug.Log(string.Join(", ", O.DownloadToArray()));
             CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.DownloadToArray());
         }
+        */
 
-        public void Test(Range r) {
-            //Test(^1);
-        }
         [Test]
         public void TestSlicingCustom() {
             using Ops ops = new Ops(BackendType.GPUCompute);
@@ -98,6 +100,7 @@ namespace Doji.AI.Editor.Tests {
             var x = ..;
             var y = ^1;
             using Tensor<int> O = ops.Slice(tensor, .., ^1, ..);
+            ops.ExecuteCommandBufferAndClear();
             O.ReadbackAndClone();
             UnityEngine.Debug.Log(string.Join(", ", O.DownloadToArray()));
             CollectionAssert.AreEqual(new int[] { 15, 16, 17, 18, 19, 35, 36, 37, 38, 39, 55, 56, 57, 58, 59 }, O.DownloadToArray());
@@ -120,10 +123,9 @@ namespace Doji.AI.Editor.Tests {
 
             var t = new Tensor[] { tensor, tensor2, tensor3 };
             using Tensor<int> O = ops.Concat(t, 1) as Tensor<int>;
+            ops.ExecuteCommandBufferAndClear();
             O.ReadbackAndClone();
-            System.IO.File.WriteAllText("out.txt", string.Join("\n ", O.DownloadToArray()));
-            UnityEngine.Debug.Log(O.DownloadToArray().Length);
-            UnityEngine.Debug.Log(O.shape);
+
             var expected = new int[] {
                 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
                 14,  15,  16,  17,  18,  19,   0,   1,   2,   3,   4,   0,   1,   2,
@@ -141,6 +143,5 @@ namespace Doji.AI.Editor.Tests {
                 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119 };
             CollectionAssert.AreEqual(expected, O.DownloadToArray());
         }
-        */
     }
 }

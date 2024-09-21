@@ -9,7 +9,7 @@ namespace Doji.AI {
 
         public BackendType BackendType { get; private set; }
         
-        internal IBackend _backend;
+        public IBackend _backend;
 
         private readonly HashSet<Tensor> _pool = new HashSet<Tensor>();
 
@@ -20,6 +20,13 @@ namespace Doji.AI {
 
         public void Dispose() {
             FlushTensors();
+            _backend?.Dispose();
+        }
+
+        public void ExecuteCommandBufferAndClear() {
+            if (BackendType == BackendType.GPUCompute) {
+                (_backend as BackendProxy).ExecuteCommandBufferAndClear();
+            }
         }
 
         public Tensor TakeOwnership(Tensor tensor) {
