@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Unity.Sentis;
-using static Doji.AI.TensorShapeHelper;
 
 namespace Doji.AI {
 
@@ -20,6 +19,13 @@ namespace Doji.AI {
 
         public void Dispose() {
             FlushTensors();
+            _backend?.Dispose();
+        }
+
+        public void ExecuteCommandBufferAndClear() {
+            if (BackendType == BackendType.GPUCompute) {
+                (_backend as GPUComputeBackend).ExecuteCommandBufferAndClear();
+            }
         }
 
         public Tensor TakeOwnership(Tensor tensor) {
@@ -393,9 +399,11 @@ namespace Doji.AI {
         }
 
         public Tensor<float> RandomNormal(TensorShape S, float mean, float scale, int seed) {
-            var O = AllocNoData<float>(S);
-            if (O.shape.HasZeroDims())
+            var O = AllocZeros<float>(S);
+            if (O.shape.HasZeroDims()) {
+                UnityEngine.Debug.Log("TZero dims");
                 return O;
+            }
             _backend.RandomNormal(O, mean, scale, seed);
             return O;
         }
@@ -732,7 +740,7 @@ namespace Doji.AI {
             var values = AllocNoData<float>(outputShape);
             var indices = AllocNoData<int>(outputShape);
 
-            //if (!outputShape.HasZeroDims())
+            if (!outputShape.HasZeroDims())
                 _backend.TopK(X, values, indices, k, axis, largest);
             return (values, indices);
         }
