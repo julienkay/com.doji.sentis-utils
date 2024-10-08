@@ -24,29 +24,5 @@ namespace Doji.AI {
 
             return gathered;
         }
-
-        public static TensorShape Split(this TensorShape shape, int axis, int start, int end) {
-            Type tensorShapeType = typeof(TensorShape);
-            MethodInfo splitMethod = tensorShapeType.GetMethod("Split", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] parameters = { axis, start, end };
-            TensorShape result = (TensorShape)splitMethod.Invoke(shape, parameters);
-            return result;
-        }
-
-        public static int Axis(this TensorShape shape, int axis) {
-            Type tensorShapeType = typeof(TensorShape);
-            MethodInfo splitMethod = tensorShapeType.GetMethod("Axis", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] parameters = { axis };
-            int result = (int)splitMethod.Invoke(shape, parameters);
-            return result;
-        }
-
-        public static TensorShape BroadcastToRank(this TensorShape shape, int rank) {
-            Type tensorShapeType = typeof(TensorShape);
-            MethodInfo splitMethod = tensorShapeType.GetMethod("BroadcastToRank", BindingFlags.NonPublic | BindingFlags.Instance);
-            object[] parameters = { rank };
-            TensorShape result = (TensorShape)splitMethod.Invoke(shape, parameters);
-            return result;
-        }
     }
 }
