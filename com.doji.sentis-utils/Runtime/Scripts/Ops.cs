@@ -390,6 +390,23 @@ namespace Doji.AI {
             return O;
         }
 
+        /// <summary>
+        /// Calculates an output tensor by resampling the input tensor along the spatial dimensions with given scales.
+        /// </summary>
+        /// <param name="X">The input tensor.</param>
+        /// <param name="scale">The factor to scale each dimension by.</param>
+        /// <param name="interpolationMode">The `InterpolationMode` to use for the operation.</param>
+        /// <param name="nearestMode">The `NearestMode` to use for the operation when using `InterpolationMode.NearestMode`. The default is `NearestMode.RoundPreferFloor`.</param>
+        /// <param name="coordTransformMode">The `CoordTransformMode` to use for the operation. The default is `CoordTransformMode.HalfPixel`.</param>
+        /// <returns>The computed output tensor.</returns>
+        public Tensor<float> Resize(Tensor<float> X, ReadOnlySpan<float> scale, Unity.Sentis.Layers.InterpolationMode interpolationMode, Unity.Sentis.Layers.NearestMode nearestMode = Unity.Sentis.Layers.NearestMode.RoundPreferFloor, Unity.Sentis.Layers.CoordTransformMode coordTransformMode = Unity.Sentis.Layers.CoordTransformMode.HalfPixel) {
+            var O = AllocNoData<float>(Unity.Sentis.ShapeInference.Resize(X.shape, scale));
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Resize(X, O, scale, interpolationMode, nearestMode, coordTransformMode);
+            return O;
+        }
+
         public Tensor<float> Abs(Tensor<float> X) {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
@@ -405,14 +422,6 @@ namespace Doji.AI {
                 return O;
             }
             _backend.RandomNormal(O, mean, scale, seed);
-            return O;
-        }
-
-        public Tensor<float> RandomNormal(TensorShape S, float mean, float scale, uint seed) {
-            var O = AllocNoData<float>(S);
-            if (O.shape.HasZeroDims())
-                return O;
-            _backend.RandomNormal(O, mean, scale, unchecked((int)seed));
             return O;
         }
 
