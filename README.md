@@ -7,6 +7,22 @@ A small collection of utility scripts and extensions for Unity Sentis
 
 [OpenUPM]
 
+### Installation
+
+<details>
+  <summary> via OpenUPM </summary>
+  
+ 1. In `Edit -> Project Settings -> Package Manager`, add a new scoped registry:
+
+        Name: Doji
+        URL: https://package.openupm.com
+        Scope(s): com.doji
+ 
+  4. In the Package Manager install `com.doji.sentis-utils` either by name or select it in the list under `Package Manager -> My Registries`
+  5. For the time being,  you also have to use a custom fork of Sentis: In the package Manager -> `Package Manager -> Install package from git URL-> https://github.com/julienkay/com.unity.sentis.git`
+
+</details>
+
 ## About
 
 - Brings back an Ops class similar to what was available in previous Sentis versions. Unlike with the IBackend class it has the convenience of not needing to figure out the shape and allocate the output tensor when doing operations. In terms of memory management it will not reuse any memory and the consumer is responsible to call Flush() to free the memory of all the temporary tensors.
