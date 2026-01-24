@@ -174,63 +174,63 @@ namespace Doji.AI {
             _backend.Min(tensor1, tensor2, O);
             return O;
         }
-        /*
-        public Tensor<float> ReduceMax(Tensor<float> X, ReadOnlySpan<int axes) {
-            var O = AllocNoData<float>(X.shape.Reduce(axes));
+
+        public Tensor<float> ReduceMax(Tensor<float> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceMax(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceMax(Tensor<int> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<int>(X.shape.Reduce(axes));
+        public Tensor<int> ReduceMax(Tensor<int> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceMax(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceMean(Tensor<float> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<float>(X.shape.Reduce(axes));
+        public Tensor<float> ReduceMean(Tensor<float> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceMean(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceMin(Tensor<float> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<float>(X.shape.Reduce(axes));
+        public Tensor<float> ReduceMin(Tensor<float> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceMin(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceMin(Tensor<int> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<int>(X.shape.Reduce(axes));
+        public Tensor<int> ReduceMin(Tensor<int> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceMin(X, O, axes);
             return O;
         }
 
-        public Tensor<float> ReduceSum(Tensor<float> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<float>(X.shape.Reduce(axes));
+        public Tensor<float> ReduceSum(Tensor<float> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<float>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceSum(X, O, axes);
             return O;
         }
 
-        public Tensor<int> ReduceSum(Tensor<int> X, ReadOnlySpan<int> axes) {
-            var O = AllocNoData<int>(X.shape.Reduce(axes));
+        public Tensor<int> ReduceSum(Tensor<int> X, ReadOnlySpan<int> axes, bool keepDim = true) {
+            var O = AllocNoData<int>(X.shape.Reduce(axes, keepDim));
             if (O.shape.HasZeroDims())
                 return O;
             _backend.ReduceSum(X, O, axes);
             return O;
         }
-        */
+
         public Tensor<float> Mul(Tensor<float> A, Tensor<float> B) {
             var O = AllocNoData<float>(A.shape.Broadcast(B.shape));
             if (O.shape.HasZeroDims())
