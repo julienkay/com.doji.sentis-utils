@@ -1,9 +1,157 @@
 using System;
 using System.Collections.Generic;
-using Unity.Sentis;
+using Unity.InferenceEngine;
 using UnityEngine.Assertions;
 
 namespace Doji.AI {
+
+    /// <summary>
+    /// Options for the padding values for `Pad`.
+    /// </summary>
+    public enum PadMode {
+        /// <summary>
+        /// Use a constant value for the padded data.
+        /// </summary>
+        Constant,
+        /// <summary>
+        /// Use the reflection of the values of the input tensor mirrored on the first and last values along the axis. The edge values appear once in the output tensor.
+        /// </summary>
+        Reflect,
+        /// <summary>
+        /// Use the edge values of the input tensor.
+        /// </summary>
+        Edge,
+        /// <summary>
+        /// Use the reflection of the values of the input tensor mirrored half a step outside the first and last values along the axis. The edge values appear twice in the output tensor.
+        /// </summary>
+        Symmetric,
+        /// <summary>
+        /// Wrap the values of the input tensor like a torus for the padded data.
+        /// </summary>
+        Wrap,
+    }
+
+    /// <summary>
+    /// Options for the scaling mode to use for `Resize`.
+    /// </summary>
+    public enum ScaleMode {
+        /// <summary>
+        /// Use the size tensor directly for the shape of the output tensor.
+        /// </summary>
+        Sizes,
+        /// <summary>
+        /// Use the scales tensor to multiply the shape of the input tensor to calculate the shape of the output tensor.
+        /// </summary>
+        Scales
+    }
+
+    /// <summary>
+    /// Options for the interpolation mode to use for `Resize`.
+    /// </summary>
+    public enum InterpolationMode {
+        /// <summary>
+        /// Use the nearest element to the calculated coordinate. The exact behaviour depends on `nearestMode`.
+        /// </summary>
+        Nearest,
+        /// <summary>
+        /// Use a linear sampling of the surrounding elements to the calculated coordinate.
+        /// </summary>
+        Linear,
+        /// <summary>
+        /// Use a cubic sampling of the surrounding elements to the calculated coordinate.
+        /// </summary>
+        Cubic
+    }
+
+    /// <summary>
+    /// Options for how to sample the nearest element in `Resize` when using `InterpolationMode.NearestMode`.
+    /// </summary>
+    public enum NearestMode {
+        /// <summary>
+        /// Use rounding to the nearest integer coordinate. If the fractional part equals 0.5 then round down.
+        /// </summary>
+        RoundPreferFloor,
+        /// <summary>
+        /// Use rounding to the nearest integer coordinate. If the fractional part equals 0.5 then round up.
+        /// </summary>
+        RoundPreferCeil,
+        /// <summary>
+        /// Use rounding down to the next integer coordinate less than or equal to the input coordinate.
+        /// </summary>
+        Floor,
+        /// <summary>
+        /// Use rounding up to the next integer coordinate greater than or equal to the input coordinate.
+        /// </summary>
+        Ceil
+    }
+
+    /// <summary>
+    /// Padding mode for outside grid values.
+    /// </summary>
+    public enum PaddingMode {
+        /// <summary>
+        /// Use 0 for out-of-bound grid locations.
+        /// </summary>
+        Zeros,
+        /// <summary>
+        /// Use border value for out-of-bound grid locations.
+        /// </summary>
+        Border,
+        /// <summary>
+        /// Use values at locations reflected by the border for out-of-bound grid locations. Distant values are reflected multiple times until in bounds.
+        /// </summary>
+        Reflection
+    }
+
+    /// <summary>
+    /// Options for how to transform between the coordinate in the output tensor and the coordinate in the input tensor in `Resize`.
+    /// </summary>
+    public enum CoordTransformMode {
+        /// <summary>
+        /// Use shifting by half a pixel before and after scaling.
+        /// </summary>
+        HalfPixel,
+        /// <summary>
+        /// Use shifting by half a pixel before and after scaling if the output length is greater than 1, otherwise use 0.
+        /// </summary>
+        PytorchHalfPixel,
+        /// <summary>
+        /// Use scaling by `length - 1` so that corner pixels align.
+        /// </summary>
+        AlignCorners,
+        /// <summary>
+        /// Use direct scaling of coordinates by the scaling factor.
+        /// </summary>
+        Asymmetric,
+    }
+
+    /// <summary>
+    /// Options for which part of the input matrix to retain in `Trilu`.
+    /// </summary>
+    public enum TriluMode {
+        /// <summary>
+        /// Use retaining of the lower part of the input matrix.
+        /// </summary>
+        Lower = 0,
+        /// <summary>
+        /// Use retaining of the upper part of the input matrix.
+        /// </summary>
+        Upper = 1,
+    }
+
+    /// <summary>
+    /// Options for the ordering of the elements in `DepthToSpace`.
+    /// </summary>
+    public enum DepthToSpaceMode {
+        /// <summary>
+        /// Use depth, column, row ordering where the data is arranged (by * blocksize * channels) + (bx * channels) + c.
+        /// </summary>
+        DepthColumnRow,
+        /// <summary>
+        /// Use column, row, depth ordering where the data is arranged (c * blocksize * blocksize) + (by * blocksize) + bx.
+        /// </summary>
+        ColumnRowDepth,
+    }
 
     /// <summary>
     /// Extends Ops class with not-yet implemented operators

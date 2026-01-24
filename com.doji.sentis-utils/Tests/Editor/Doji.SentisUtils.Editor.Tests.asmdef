@@ -2,8 +2,7 @@
     "name": "Doji.SentisUtils.Editor.Tests",
     "rootNamespace": "",
     "references": [
-        "GUID:c98377141161c7746a178fb5cb1af075",
-        "GUID:cf0ac4207a68fac439ea28cb5bfbf97e"
+        "GUID:63a57c8b658089e49a173b0f0c4870a7"
     ],
     "includePlatforms": [
         "Editor"
