@@ -366,7 +366,7 @@ namespace Doji.AI {
             return O;
         }
 
-        public Tensor<float> Clip(Tensor<float> X, float min, float max) {
+        public Tensor<float> Clip(Tensor<float> X, Tensor<float> min, Tensor<float> max) {
             var O = AllocNoData<float>(X.shape);
             if (O.shape.HasZeroDims())
                 return O;
@@ -374,7 +374,7 @@ namespace Doji.AI {
             return O;
         }
 
-        public Tensor<int> Clip(Tensor<int> X, int min, int max) {
+        public Tensor<int> Clip(Tensor<int> X, Tensor<int> min, Tensor<int> max) {
             var O = AllocNoData<int>(X.shape);
             if (O.shape.HasZeroDims()) {
                 return O;
