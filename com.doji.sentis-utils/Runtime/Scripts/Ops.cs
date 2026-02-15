@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Unity.InferenceEngine;
 
 namespace Doji.AI {
@@ -363,6 +362,22 @@ namespace Doji.AI {
             if (O.shape.HasZeroDims())
                 return O;
             _backend.Sqrt(X, O);
+            return O;
+        }
+
+        public Tensor<float> Clip(Tensor<float> X, float min, float max) {
+            var O = AllocNoData<float>(X.shape);
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Clip(X, O, min, max);
+            return O;
+        }
+
+        public Tensor<int> Clip(Tensor<int> X, int min, int max) {
+            var O = AllocNoData<int>(X.shape);
+            if (O.shape.HasZeroDims())
+                return O;
+            _backend.Clip(X, O, min, max);
             return O;
         }
 

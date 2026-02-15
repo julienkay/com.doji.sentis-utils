@@ -1,0 +1,53 @@
+#pragma kernel ClipFloat
+#pragma kernel ClipInt
+
+StructuredBuffer<float> X_float_ptr;
+StructuredBuffer<int> X_int_ptr;
+
+RWStructuredBuffer<float> O_float_ptr;
+RWStructuredBuffer<int> O_int_ptr;
+
+uint2 unrolledDispatchArgs;
+float alpha, beta, gamma;
+int alphai, betai, gammai;
+
+#define TILE_DIM 256
+
+inline float OpperationClipFloat(float v)
+{
+    return min(beta, max(v, alpha));
+}
+
+[numthreads(TILE_DIM, 1, 1)]
+void ClipFloat(uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint threadIndex : SV_GroupIndex, uint3 groupID : SV_GroupID)
+{
+    uint groupLengthX = unrolledDispatchArgs.x;
+    uint totalLength  = unrolledDispatchArgs.y;
+
+    uint ti = threadIndex + TILE_DIM * (groupID.x + groupID.y * groupLengthX);
+    if (ti >= totalLength)
+        return;
+
+    float v = X_float_ptr[ti];
+    O_float_ptr[ti] = OpperationClipFloat(v);
+}
+
+
+inline int OpperationClipInt(int v)
+{
+    return min(betai, max(v, alphai));
+}
+
+[numthreads(TILE_DIM, 1, 1)]
+void ClipInt(uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint threadIndex : SV_GroupIndex, uint3 groupID : SV_GroupID)
+{
+    uint groupLengthX = unrolledDispatchArgs.x;
+    uint totalLength  = unrolledDispatchArgs.y;
+
+    uint ti = threadIndex + TILE_DIM * (groupID.x + groupID.y * groupLengthX);
+    if (ti >= totalLength)
+        return;
+
+    int v = X_int_ptr[ti];
+    O_int_ptr[ti] = OpperationClipInt(v);
+}
