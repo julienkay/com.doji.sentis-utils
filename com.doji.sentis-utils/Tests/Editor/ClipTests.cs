@@ -24,7 +24,6 @@ namespace Doji.AI.Editor.Tests {
             var result = ops.Clip(input, 0f, 5f);
 
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(shape));
             Assert.That(result.DownloadToArray(), Is.EqualTo(new float[]
@@ -46,7 +45,6 @@ namespace Doji.AI.Editor.Tests {
             var result = ops.Clip(input, 0f, 10f);
 
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.DownloadToArray(), Is.EqualTo(new float[]
             {
@@ -71,7 +69,6 @@ namespace Doji.AI.Editor.Tests {
             var result = ops.Clip(input, 0, 5);
 
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(shape));
             Assert.That(result.DownloadToArray(), Is.EqualTo(new int[]
@@ -97,7 +94,6 @@ namespace Doji.AI.Editor.Tests {
             var result = ops.Clip(input, 1, 5);
 
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(shape));
             Assert.That(result.DownloadToArray(), Is.EqualTo(new int[]

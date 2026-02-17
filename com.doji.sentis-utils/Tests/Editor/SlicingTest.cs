@@ -18,7 +18,6 @@ namespace Doji.AI.Editor.Tests {
 
             var result = ops.Slice(tensor, 1);
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(new TensorShape()));
             Assert.That(result.DownloadToArray(), Is.EqualTo(new[] { 2 }));
@@ -34,7 +33,6 @@ namespace Doji.AI.Editor.Tests {
 
             var result = ops.Slice(tensor, .., 1);
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(new TensorShape(2)));
             Assert.That(result.DownloadToArray(), Is.EqualTo(new[] { 2, 5 }));
@@ -49,7 +47,6 @@ namespace Doji.AI.Editor.Tests {
 
             var result = ops.Slice(tensor, .., 1, ..);
             ops.ExecuteCommandBufferAndClear();
-            result.ReadbackAndClone();
 
             Assert.That(result.shape, Is.EqualTo(new TensorShape(2, 4)));
             Assert.That(
